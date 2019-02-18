@@ -277,7 +277,7 @@ void DrawBlock(BlockInfo _block, DRAW _draw)
 	}
 	setfillcolor(color);                                         
 
-	for (int i = 0;i<16;i++)                                        //对一个方块区域内16个像素扫描
+	for (int i = 0;i<16;i++)                                        //scanner un région de ４*４ et dessiner le bloc 
 	{
 		if (b & 0x8000)
 		{
@@ -299,7 +299,7 @@ void DrawBlock(BlockInfo _block, DRAW _draw)
 
 }
 
-// 检测指定方块是否可以放下
+// ;;Check the block so that it could be placed 
 bool CheckBlock(BlockInfo _block)
 {
 	WORD b = g_blocks[_block.id].dir[_block.dir];
@@ -311,9 +311,9 @@ bool CheckBlock(BlockInfo _block)
 		{
 			x = _block.x + i % 4;
 			y = _block.y - i / 4;
-			if ((x<0) || (x >= WIDTH) || (y<0))                  //若方块坐标超出宽度，返回false表示放不下
+			if ((x<0) || (x >= WIDTH) || (y<0))                  //trop gauche ou trop droite
 				return false;
-			if ((y<HEIGHT) && (game_area[x][y]))             //若方块坐标超出高度，返回false表示放不下
+			if ((y<HEIGHT) && (game_area[x][y]))             //trop haut
 				return false;
 
 		}
@@ -326,14 +326,14 @@ bool CheckBlock(BlockInfo _block)
 // Rotation
 void OnRotate()
 {
-	// 获取可以旋转的偏移量（X）
+
 	int distance;
 	BlockInfo temp = g_CurBlock;
-	temp.dir++;              if (CheckBlock(temp)) { distance = 0; goto rotate; }      // 当变换到下一个形状时直接旋转
-	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }     // x坐标左移一格再旋转
-	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }      // x坐标右移移一格再旋转
-	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }     // x坐标左移两格再旋转
-	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }      // x坐标右移两格再旋转
+	temp.dir++;              if (CheckBlock(temp)) { distance = 0; goto rotate; }      // rotation sans bouger
+	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }     // bouger à gauche pour un unité et après tourner 
+	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }      // bouger à droite pour un unité et après tourner
+	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }     // bouger à gauche pour 2 unités et après tourner
+	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }      // bouger à droite pour 2 unités et après tourner
 	return;
 
 	//rotation:tuer le bloc à l'instant et créer un nouveau bloc(qui est 'tourné') 
@@ -395,25 +395,25 @@ void OnSink()
 {
 	int i, x, y;
 	int count = 0;
-	// 连续下移
+	// continuer à bouger au dessous
 	DrawBlock(g_CurBlock, HIDE);
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
-	while (CheckBlock(temp))          // 判断下方能否移动
+	while (CheckBlock(temp))          //assurer que le bloc peut bouger 
 	{
 		--g_CurBlock.y;
 		--temp.y;
 	}
-	DrawBlock(g_CurBlock, FIX);      //直至不能下移，填充到底部
+	DrawBlock(g_CurBlock, FIX);      //continue à bouger au dessus si possible
 
-									 // 固定方块在游戏区
+									 // mettre le bloc sur la place finale
 	WORD b = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
 	for (i = 0; i < 16; i++)
 	{
 		if (b & 0x8000)
 		{
 			if (g_CurBlock.y - i / 4 >= HEIGHT)
-			{	// 如果方块的固定位置超出高度，结束游戏
+			{	// si la place finale est trop haut - GAMEOVER
 				GameOver();
 				return;
 			}
@@ -424,7 +424,7 @@ void OnSink()
 		b <<= 1;
 	}
 
-	// 检查是否需要消掉行，并标记
+	// confirmer est-ce que on doit supprimer un ou plusieurs lignes
 	int row[4] = { 0 };
 	bool bRow = false;
 	for (y = g_CurBlock.y; y >= max(g_CurBlock.y - 3, 0);y--)
@@ -436,7 +436,7 @@ void OnSink()
 		if (i == WIDTH)
 		{
 			bRow = true;
-			row[g_CurBlock.y - y] = 1;    // 标记行
+			row[g_CurBlock.y - y] = 1;    // marquer le ligne
 			setfillcolor(WHITE);
 			bar(220, (HEIGHT - y - 1)*SIZE + SIZE / 2 - 2 + 20, WIDTH * SIZE - 1 + 220, (HEIGHT - y - 1) * SIZE + SIZE / 2 + 2 + 20);
 		}
@@ -444,9 +444,8 @@ void OnSink()
 
 	if (bRow)
 	{
-		// 延时200毫秒
 		Sleep(200);
-		// 擦掉刚才标记的行
+		// supprimer le ligne marqué 
 		IMAGE img;
 		for (i = 0; i < 4; i++)
 		{
@@ -462,21 +461,21 @@ void OnSink()
 				getimage(&img, 220, 20, WIDTH * SIZE, (HEIGHT - (g_CurBlock.y - i + 1)) * SIZE);
 				putimage(220, SIZE + 20, &img);
 			}
-		}// 计算分数、等级
+		}// calculer le score et le niveaux de difficulté 
 		score += count * 10;
 		showScore();
 		level = score / 100 + 1;
 		showLevel();
 	}
 
-	// 产生新的方块
+	// créer un nouveau bloc
 	NewBlock();
 }
 
 
 
 
-// 游戏结束后把游戏所得分数保存
+// stocker le score après GAMEOVER
 void writefile(Pai &P)
 {
 
@@ -490,7 +489,7 @@ void writefile(Pai &P)
 	}
 	do
 	{
-		InputBox(P.name, 10, "Votre prenom：");      // 弹出文本框提示输入姓名
+		InputBox(P.name, 10, "Votre prenom：");      // ajouter le prénom de joueur 
 		P.grades = score;
 		fwrite(&P, sizeof(P), 1, fp);
 
@@ -501,7 +500,7 @@ void writefile(Pai &P)
 
 }
 
-// 读取保存的排行榜信息
+// lire les information de la liste des scores
 int readfile(Pai &P)
 {
 	int x = 78, y = 70, z = 455, i = 1;

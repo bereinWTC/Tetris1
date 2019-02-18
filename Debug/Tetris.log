@@ -1,9 +1,9 @@
-﻿生成启动时间为 2019/2/18 2:19:02。
+﻿生成启动时间为 2019/2/19 0:50:52。
      1>项目“E:\projects\IN204\Tetris\Tetris\Tetris\Tetris.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
          E:\softwares\VS2015\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Tetris.cpp
          Tetris.cpp
-     1>e:\projects\in204\tetris\tetris\tetris\tetris.cpp(185): warning C4018: “>=”: 有符号/无符号不匹配
+     1>e:\projects\in204\tetris\tetris\tetris\tetris.cpp(181): warning C4018: “>=”: 有符号/无符号不匹配
        Link:
          E:\softwares\VS2015\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\projects\IN204\Tetris\Tetris\Debug\Tetris.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"E:\projects\IN204\Tetris\Tetris\Debug\Tetris.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\projects\IN204\Tetris\Tetris\Debug\Tetris.lib" /MACHINE:X86 Debug\Tetris.obj
          Tetris.vcxproj -> E:\projects\IN204\Tetris\Tetris\Debug\Tetris.exe
@@ -11,4 +11,4 @@
 
 已成功生成。
 
-已用时间 00:00:00.90
+已用时间 00:00:01.04
