@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>      
 #pragma comment(lib,"Winmm.lib")                 // utilisation de Winmm.lib
-#define	WIDTH	10		                         // la r®¶gion de jeu est de 10*22 unit®¶s
+#define	WIDTH	10		                         // la region de jeu est de 10*22 unites
 #define	HEIGHT	22	                             // 
-#define	SIZE	20		                         // chaque unit®¶ est de 20 pixels
+#define	SIZE	20		                         // chaque unite est de 20 pixels
 
 
 struct Pai
@@ -21,7 +21,7 @@ enum CMD
 {
 	CMD_ROTATE,						// notation 
 	CMD_LEFT, CMD_RIGHT, CMD_DOWN,	// bouger 
-	CMD_SINK,				        // aller tous droite ®§ la base 
+	CMD_SINK,				        // aller tous droite a la base 
 	CMD_QUIT,						// quitter 
 	CMD_STOP                        // pause
 };
@@ -65,7 +65,7 @@ void Init();											// initialisation de jeu
 void Quit();											// quitter
 void NewGame();											// commencer un NewGame
 void GameOver();										// Gameover
-CMD  GetCmd();											// obtenir les commandes de clavierªÒ»°øÿ÷∆√¸¡Ó
+CMD  GetCmd();											// obtenir les commandes de clavier
 void DispatchCmd(CMD _cmd);								// distribuer les commandes
 void NewBlock();										// cr®¶er un nouveau bloc 
 bool CheckBlock(BlockInfo _block);						// assurer que le bloc peut ®∫tre mis 
