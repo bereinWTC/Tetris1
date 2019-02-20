@@ -1,10 +1,10 @@
 #include "Tetris.h"
 
-//d¨¦finir le score et le niveau de difficult¨¦ 
+//définir le score et le niveau de difficulté
 int score = 0;
 int level = 1;
 
-Pai user;                     // d¨¦finir user pour stocker le score et nom de joueur
+Pai user;                     // définir user pour stocker le score et nom de joueur
 
 
 void main()
@@ -14,8 +14,7 @@ void main()
 	closegraph();
 
 }
-
-//Menu au d¨¦but
+//Menu au début
 void WelcomeMenu()
 {
 
@@ -231,7 +230,7 @@ void DispatchCmd(CMD _cmd)
 }
 
 
-/*Op¨¦ration des blocs*/
+/*Opération des blocs*/
 
 
 void NewBlock()
@@ -475,7 +474,7 @@ void OnSink()
 
 
 
-// stocker le score apr¨¨s GAMEOVER
+// stocker le score après GAMEOVER
 void writefile(Pai &P)
 {
 
@@ -530,7 +529,7 @@ int readfile(Pai &P)
 	return 0;
 }
 
-// Pour le liste des scores apr¨¨s jouer
+// Pour le liste des scores après jouer
 void Paihang(Pai &P)
 {
 	Pai a[12];
