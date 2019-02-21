@@ -1,42 +1,22 @@
-#include <graphics.h>									// Fonctionne sur windows. L'installation de EasyX est obligatoire.
 #include <conio.h>
 #include <time.h>
 #include <stdio.h>
-#include <stdlib.h>      
+#include <stdlib.h>   
+#include "Score_list.h"
+#include "CMD.h"
+#include "DRAW.h"
+#include "Block.h"
+#include "BlockInfo.h"
 #pragma comment(lib,"Winmm.lib")						// utilisation de Winmm.lib
 #define	WIDTH	10										// la region de jeu est de 10*22 unites
 #define	HEIGHT	22	                       
 #define	SIZE	20										// chaque unite est de 20 pixels
-
-
-struct Score_list
-{
-	char name[20];
-	double grades;
-};
-typedef struct Score_list Score_list;
-/*
-les commandes du jeu
-*/
-enum CMD
-{
-	CMD_ROTATE,						// rotation 
-	CMD_LEFT, CMD_RIGHT, CMD_DOWN,	// bouger 
-	CMD_SINK,				        // aller tous droite a la base 
-	CMD_QUIT,						// quitter 
-	CMD_STOP                        // pause
-};
-enum DRAW
-{
-	SHOW,
-	HIDE,
-	FIX
-};
-struct Block
-{
-	WORD dir[4];                //structure des blocs
-	COLORREF  color;            //couleurs des bloc 
-};
+/*définir le score et le niveau de difficulté*/
+int score = 0;
+int level = 1;
+BYTE game_area[WIDTH][HEIGHT] = { 0 };
+DWORD  oldtime;											// contrôle de temp pour charge opération 
+Score_list user;										// définir user pour stocker le score et nom de joueur
 /*
 il y a 7 types des bloc
 0x0f00 = [0000 1111 0000 0000]:	I horizontale
@@ -51,39 +31,33 @@ Block g_blocks[7] = {
 { 0x0360, 0x4620, 0x0360, 0x4620, GREEN },				// Z oppose
 { 0x4E00, 0x4C40, 0x0E40, 0x4640, BROWN } };			// T
 
-struct BlockInfo
+class Tetris
 {
-	byte id;											// ID
-	char x, y;											// coordonnee
-	byte dir : 2;										// direction
-}	g_CurBlock, g_NextBlock;
+public :
+	void WelcomeMenu();                                     // le menu au debut pour commencer le jeu
+	void Init();											// initialisation de jeu
+	void Quit();											// quitter
+	void NewGame();											// commencer un NewGame
+	void GameOver();										// Gameover
+	CMD  GetCmd();											// obtenir les commandes de clavier
+	void DispatchCmd(CMD _cmd);								// distribuer les commandes
+	void NewBlock();										// créer un nouveau bloc 
+	bool CheckBlock(BlockInfo _block);						// assurer que le bloc peut être mis 
+	void DrawBlock(BlockInfo _block, DRAW _draw = SHOW);	// dessiner un bloc 
+	void OnRotate();										// rotation
+	void OnLeft();											// bouger vers le gauche 
+	void OnRight();											// bouger vers le droite
+	void OnDown();											// bouger vers le bas
+	void OnSink();                                          // aller tout droite au dessous 
+	void writefile(Score_list &P);                          // écrire les scores
+	int  readfile(Score_list &P);                           // lire les scores 
+	void score_list(Score_list &P);                         // lister les scores
+	void ScoreTop();                                        // disposer la liste des scores
+	void showScore();                                       // afficher le score en temps réel
+	void showLevel();                                       // afficher le niveau du jeu
+	void DisplayPause();                                    // Pause
+	void play();
 
-
-BYTE game_area[WIDTH][HEIGHT] = { 0 };
-
-
-
-void WelcomeMenu();                                     // le menu au debut pour commencer le jeu
-void Init();											// initialisation de jeu
-void Quit();											// quitter
-void NewGame();											// commencer un NewGame
-void GameOver();										// Gameover
-CMD  GetCmd();											// obtenir les commandes de clavier
-void DispatchCmd(CMD _cmd);								// distribuer les commandes
-void NewBlock();										// créer un nouveau bloc 
-bool CheckBlock(BlockInfo _block);						// assurer que le bloc peut être mis 
-void DrawBlock(BlockInfo _block, DRAW _draw = SHOW);	// dessiner un bloc 
-void OnRotate();										// rotation
-void OnLeft();											// bouger vers le gauche 
-void OnRight();											// bouger vers le droite
-void OnDown();											// bouger vers le bas
-void OnSink();                                          // aller tout droite au dessous 
-void writefile(Score_list &P);                                 // écrire les scores
-int  readfile(Score_list &P);                                  // lire les scores 
-void score_list(Score_list &P);                                   // lister les scores
-void ScoreTop();                                        // disposer la liste des scores
-void showScore();                                       // afficher le score en temps réel
-void showLevel();                                       // afficher le niveau du jeu
-void DisplayPause();                                    // Pause
+};
 
 

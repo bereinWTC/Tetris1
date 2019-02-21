@@ -1,25 +1,12 @@
 #include "Tetris.h"
 
-//définir le score et le niveau de difficulté
-int score = 0;
-int level = 1;
-
-Score_list user;                     // définir user pour stocker le score et nom de joueur
-
-/*
-main function
-*/
-void main()
+void Tetris::play()
 {
 	WelcomeMenu();
 	_getch();
 	closegraph();
-
 }
-/*
-Menu au début
-*/
-void WelcomeMenu()
+void Tetris::WelcomeMenu()
 {
 
 	initgraph(640, 480);
@@ -78,10 +65,7 @@ void WelcomeMenu()
 	else if (flag == 2)  ScoreTop();
 	else if (flag == 3) 	Quit();
 }
-/*
-initialiser
-*/
-void Init()
+void Tetris::Init()
 {
 	initgraph(640, 480);
 
@@ -125,7 +109,7 @@ void Init()
 
 
 }
-void NewGame()
+void Tetris::NewGame()
 {
 
 	setfillcolor(BLACK);
@@ -142,11 +126,7 @@ void NewGame()
 	/* obtenir le bloc prochain */
 	NewBlock();
 }
-
-/*
-GAMEOVER
-*/
-void GameOver()
+void Tetris::GameOver()
 {
 	HWND wnd = GetHWnd();
 	writefile(user);
@@ -163,22 +143,12 @@ void GameOver()
 
 
 }
-
-/*
-quitter
-*/
-void Quit()
+void Tetris::Quit()
 {
 	closegraph();
 	exit(0);
-}
-
-
-DWORD  oldtime;            // contrôle de temp pour charge opération 		
-/*
-recevoir less commandes
-*/
-CMD GetCmd()
+}		
+CMD Tetris::GetCmd()
 {
 	while (1)
 	{
@@ -221,8 +191,7 @@ CMD GetCmd()
 		Sleep(20);
 	}
 }
-
-void DispatchCmd(CMD _cmd)
+void Tetris::DispatchCmd(CMD _cmd)
 {
 	switch (_cmd)
 	{
@@ -235,12 +204,7 @@ void DispatchCmd(CMD _cmd)
 	case CMD_QUIT:		break;
 	}
 }
-
-
-/*
-Opération des blocs
-*/
-void NewBlock()
+void Tetris::NewBlock()
 {
 	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
 	g_CurBlock.dir = g_NextBlock.dir, g_NextBlock.dir = rand() % 4;
@@ -266,8 +230,7 @@ void NewBlock()
 	oldtime = GetTickCount();
 
 }
-
-void DrawBlock(BlockInfo _block, DRAW _draw)
+void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 {
 	WORD b = g_blocks[_block.id].dir[_block.dir];
 	int x, y;
@@ -302,9 +265,7 @@ void DrawBlock(BlockInfo _block, DRAW _draw)
 	}
 
 }
-
-// ;;Check the block so that it could be placed 
-bool CheckBlock(BlockInfo _block)
+bool Tetris::CheckBlock(BlockInfo _block)
 {
 	WORD b = g_blocks[_block.id].dir[_block.dir];
 	int x, y;
@@ -325,12 +286,7 @@ bool CheckBlock(BlockInfo _block)
 	}
 	return true;
 }
-
-
-/*
-Rotation
-*/
-void OnRotate()
+void Tetris::OnRotate()
 {
 
 	int distance;
@@ -350,7 +306,7 @@ rotate:
 	DrawBlock(g_CurBlock);
 
 }
-void OnLeft()
+void Tetris::OnLeft()
 {
 	BlockInfo temp = g_CurBlock;
 	--temp.x;
@@ -362,7 +318,7 @@ void OnLeft()
 		DrawBlock(g_CurBlock);
 	}
 }
-void OnRight()
+void Tetris::OnRight()
 {
 	BlockInfo temp = g_CurBlock;
 	++temp.x;
@@ -374,7 +330,7 @@ void OnRight()
 		DrawBlock(g_CurBlock);
 	}
 }
-void OnDown()
+void Tetris::OnDown()
 {
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
@@ -387,7 +343,7 @@ void OnDown()
 	}
 	else OnSink();
 }
-void OnSink()
+void Tetris::OnSink()
 {
 	int i, x, y;
 	int count = 0;
@@ -466,10 +422,7 @@ void OnSink()
 	}
 	NewBlock();												  // créer un nouveau bloc
 }
-/*
-stocker le score après GAMEOVER
-*/
-void writefile(Score_list &S)
+void Tetris::writefile(Score_list &S)
 {
 
 
@@ -492,11 +445,7 @@ void writefile(Score_list &S)
 	fclose(fp);
 
 }
-
-/*
-lire les information de la liste des scores
-*/
-int readfile(Score_list &S)
+int	 Tetris::readfile(Score_list &S)
 {
 	int x = 78, y = 70, z = 455, i = 1;
 	char ch_grades[5], ch[1], dot = '.';
@@ -524,11 +473,7 @@ int readfile(Score_list &S)
 	fclose(fp);
 	return 0;
 }
-
-/*
-Pour le liste des scores après jouer
-*/
-void score_list(Score_list &S)
+void Tetris::score_list(Score_list &S)
 {
 	Score_list a[12];
 	FILE *fp;
@@ -567,11 +512,7 @@ void score_list(Score_list &S)
 	}
 	fclose(fp);
 }
-
-/*
-afficher les scores
-*/
-void ScoreTop()
+void Tetris::ScoreTop()
 {
 	initgraph(640, 480);
 	IMAGE img(640, 480);
@@ -596,7 +537,7 @@ void ScoreTop()
 		}if (flag != 0) break;
 	}
 }
-void showScore() {
+void Tetris::showScore() {
 	char str[10];
 	setfillcolor(BLACK);
 	rectangle(449, 299, 576, 326);
@@ -606,11 +547,7 @@ void showScore() {
 	sprintf_s(str, sizeof(str), "score:%d", score);
 	outtextxy(450, 300, str);
 }
-
-/*
-Afficher le niveau de difficulté
-*/
-void showLevel()
+void Tetris::showLevel()
 {
 	char str[10];
 
@@ -629,11 +566,7 @@ void showLevel()
 	outtextxy(450, 250, str);
 
 }
-
-/*
-Pause
-*/
-void DisplayPause()
+void Tetris::DisplayPause()
 {
 	while (_getch() != 'p'&&_getch() != 'P')
 		;
