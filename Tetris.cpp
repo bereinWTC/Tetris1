@@ -6,7 +6,9 @@ int level = 1;
 
 Score_list user;                     // définir user pour stocker le score et nom de joueur
 
-
+/*
+main function
+*/
 void main()
 {
 	WelcomeMenu();
@@ -14,7 +16,9 @@ void main()
 	closegraph();
 
 }
-//Menu au début
+/*
+Menu au début
+*/
 void WelcomeMenu()
 {
 
@@ -42,7 +46,7 @@ void WelcomeMenu()
 				flag = 2;														//Scores
 				break;
 			}
-			else if (m.x>268 && m.x <= 392 && m.y >= 388 && m.y <= 430)
+			else if (m.x > 268 && m.x <= 392 && m.y >= 388 && m.y <= 430)
 			{
 				flag = 3;														//quitter
 
@@ -52,13 +56,13 @@ void WelcomeMenu()
 		}
 		if (flag != 0) break;
 	}
-	if (flag == 1) 
+	if (flag == 1)
 	{
 		Init();
 		CMD  c;
 		while (1)
 		{
-			 
+
 			c = GetCmd();												//recevoir la commande
 			DispatchCmd(c);												// exécuter le commande
 			/* ouvrir un fenêtre pour assurer quitter*/
@@ -74,17 +78,14 @@ void WelcomeMenu()
 	else if (flag == 2)  ScoreTop();
 	else if (flag == 3) 	Quit();
 }
-
-/* 
+/*
 initialiser
 */
 void Init()
 {
-
-
 	initgraph(640, 480);
 
-	HWND hwnd = GetHWnd();                           
+	HWND hwnd = GetHWnd();
 	SetWindowText(hwnd, "Tetris");												// Titre de jeu 
 
 	/* ouvrir la musique du background*/
@@ -120,18 +121,16 @@ void Init()
 	SetWorkingImage();
 	putimage(0, 0, &img);
 	/* commencer le jeux*/
-	NewGame();			
+	NewGame();
 
 
 }
-
-
 void NewGame()
 {
 
 	setfillcolor(BLACK);
 	bar((WIDTH + 1)*SIZE, SIZE, (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);            // créer un rectangle noir 
-	ZeroMemory(game_area, WIDTH*HEIGHT);                                       
+	ZeroMemory(game_area, WIDTH*HEIGHT);
 
 
 	/* commencer à créer des blocs*/
@@ -184,16 +183,16 @@ CMD GetCmd()
 	while (1)
 	{
 		// le bloc va tomber chaque 0.5s si il y a aucune opération 
-		DWORD newtime = GetTickCount();       
+		DWORD newtime = GetTickCount();
 
-		if (newtime - oldtime >= 600 - level * 50)  
+		if (newtime - oldtime >= 600 - level * 50)
 		{
 			oldtime = newtime;
 			return CMD_DOWN;
 		}
 		if (_kbhit())								// check the command
 		{
-			switch (_getch())                    
+			switch (_getch())
 			{
 			case 'W':
 			case 'w':  return CMD_ROTATE;
@@ -222,7 +221,6 @@ CMD GetCmd()
 		Sleep(20);
 	}
 }
-
 
 void DispatchCmd(CMD _cmd)
 {
@@ -281,15 +279,15 @@ void DrawBlock(BlockInfo _block, DRAW _draw)
 	case HIDE: color = BLACK;	break;
 	case FIX: color = g_blocks[_block.id].color / 3; break;
 	}
-	setfillcolor(color);                                         
+	setfillcolor(color);
 
-	for (int i = 0;i<16;i++)                                        //scanner une région de £´*£´ et dessiner le bloc 
+	for (int i = 0; i < 16; i++)                                        //scanner une région de £´*£´ et dessiner le bloc 
 	{
 		if (b & 0x8000)
 		{
 			x = _block.x + i % 4;
 			y = _block.y - i / 4;
-			if (y<HEIGHT)
+			if (y < HEIGHT)
 			{
 				if (_draw != HIDE)
 				{
@@ -311,15 +309,15 @@ bool CheckBlock(BlockInfo _block)
 	WORD b = g_blocks[_block.id].dir[_block.dir];
 	int x, y;
 
-	for (int i = 0;i<16;i++)
+	for (int i = 0; i < 16; i++)
 	{
 		if (b & 0x8000)
 		{
 			x = _block.x + i % 4;
 			y = _block.y - i / 4;
-			if ((x<0) || (x >= WIDTH) || (y<0))						//trop gauche ou trop droite
+			if ((x < 0) || (x >= WIDTH) || (y < 0))						//trop gauche ou trop droite
 				return false;
-			if ((y<HEIGHT) && (game_area[x][y]))					//trop haut
+			if ((y < HEIGHT) && (game_area[x][y]))					//trop haut
 				return false;
 
 		}
@@ -329,7 +327,7 @@ bool CheckBlock(BlockInfo _block)
 }
 
 
-/* 
+/*
 Rotation
 */
 void OnRotate()
@@ -345,15 +343,13 @@ void OnRotate()
 	return;
 
 	//rotation:tuer le bloc à l'instant et créer un nouveau bloc(qui est 'tourné') 
-	rotate:
-	DrawBlock(g_CurBlock, HIDE);  
+rotate:
+	DrawBlock(g_CurBlock, HIDE);
 	++g_CurBlock.dir;
 	g_CurBlock.x += distance;
-	DrawBlock(g_CurBlock);       
+	DrawBlock(g_CurBlock);
 
 }
-
-
 void OnLeft()
 {
 	BlockInfo temp = g_CurBlock;
@@ -366,9 +362,6 @@ void OnLeft()
 		DrawBlock(g_CurBlock);
 	}
 }
-
-
-
 void OnRight()
 {
 	BlockInfo temp = g_CurBlock;
@@ -381,8 +374,6 @@ void OnRight()
 		DrawBlock(g_CurBlock);
 	}
 }
-
-
 void OnDown()
 {
 	BlockInfo temp = g_CurBlock;
@@ -396,9 +387,6 @@ void OnDown()
 	}
 	else OnSink();
 }
-
-
-
 void OnSink()
 {
 	int i, x, y;
@@ -421,7 +409,7 @@ void OnSink()
 		if (b & 0x8000)
 		{
 			if (g_CurBlock.y - i / 4 >= HEIGHT)
-			{	
+			{
 				GameOver();										// si la place finale est trop haut - GAMEOVER
 				return;
 			}
@@ -435,10 +423,10 @@ void OnSink()
 	/* confirmer est-ce que on doit supprimer un ou plusieurs lignes*/
 	int row[4] = { 0 };
 	bool bRow = false;
-	for (y = g_CurBlock.y; y >= max(g_CurBlock.y - 3, 0);y--)
+	for (y = g_CurBlock.y; y >= max(g_CurBlock.y - 3, 0); y--)
 	{
 		i = 0;
-		for (x = 0; x<WIDTH;x++)
+		for (x = 0; x < WIDTH; x++)
 			if (game_area[x][y] == 1)
 				i++;
 		if (i == WIDTH)
@@ -470,7 +458,7 @@ void OnSink()
 				putimage(220, SIZE + 20, &img);
 			}
 		}
-		/* calculer le score et le niveaux de difficulté*/ 
+		/* calculer le score et le niveaux de difficulté*/
 		score += count * 10;
 		showScore();
 		level = score / 100 + 1;					          //le niveau est incrémenté tanque tout les 100 points de score 
@@ -478,11 +466,7 @@ void OnSink()
 	}
 	NewBlock();												  // créer un nouveau bloc
 }
-
-
-
-
-/* 
+/*
 stocker le score après GAMEOVER
 */
 void writefile(Score_list &S)
@@ -490,7 +474,7 @@ void writefile(Score_list &S)
 
 
 	FILE *fp;
-	fopen_s(&fp,"data_storage\\ScoreTop.rec", "ab");
+	fopen_s(&fp, "data_storage\\ScoreTop.rec", "ab");
 	if (!fp)
 	{
 		printf("file cannot be opened");
@@ -517,7 +501,7 @@ int readfile(Score_list &S)
 	int x = 78, y = 70, z = 455, i = 1;
 	char ch_grades[5], ch[1], dot = '.';
 	FILE *fp;
-	fopen_s(&fp,"data_storage\\ScoreTop.rec", "rb");
+	fopen_s(&fp, "data_storage\\ScoreTop.rec", "rb");
 	if (!fp)
 	{
 		printf("file cannot be opened");
@@ -528,11 +512,11 @@ int readfile(Score_list &S)
 
 	while (fread(&S, sizeof(S), 1, fp) == 1)
 	{
-		sprintf_s(ch,sizeof(ch), "%d", i);
+		sprintf_s(ch, sizeof(ch), "%d", i);
 		outtextxy(x - 22, y, ch);
 		outtextxy(x - 11, y, dot);
 		outtextxy(x, y, S.name);
-		sprintf_s(ch_grades,sizeof(ch_grades), "%g", S.grades);
+		sprintf_s(ch_grades, sizeof(ch_grades), "%g", S.grades);
 		outtextxy(z, y, ch_grades);
 		y += 35;
 		i++;
@@ -541,7 +525,7 @@ int readfile(Score_list &S)
 	return 0;
 }
 
-/* 
+/*
 Pour le liste des scores après jouer
 */
 void score_list(Score_list &S)
@@ -552,9 +536,9 @@ void score_list(Score_list &S)
 
 
 	int i, j;
-	fopen_s(&fp,"data_storage\\ScoreTop.rec", "rb");
+	fopen_s(&fp, "data_storage\\ScoreTop.rec", "rb");
 
-	for (i = 1;fread(&S, sizeof(S), 1, fp) == 1 && i <= 11;i++)
+	for (i = 1; fread(&S, sizeof(S), 1, fp) == 1 && i <= 11; i++)
 	{
 
 		a[i] = S;
@@ -562,12 +546,12 @@ void score_list(Score_list &S)
 
 	length = i - 1;
 
-	for (i = 2;i <= length;i++)
-		if (a[i].grades<a[i - 1].grades)
+	for (i = 2; i <= length; i++)
+		if (a[i].grades < a[i - 1].grades)
 		{
 			a[0] = a[i];
 			a[i] = a[i - 1];
-			for (j = i - 2;a[0].grades<a[j].grades;j--)
+			for (j = i - 2; a[0].grades < a[j].grades; j--)
 				a[j + 1] = a[j];
 			a[j + 1] = a[0];
 		}
@@ -575,16 +559,16 @@ void score_list(Score_list &S)
 
 	fclose(fp);
 
-	fopen_s(&fp,"data_storage\\ScoreTop.rec", "wb");
+	fopen_s(&fp, "data_storage\\ScoreTop.rec", "wb");
 	int b = 0;
-	for (i = length;b<10 && i >= 1;i--, b++)
+	for (i = length; b < 10 && i >= 1; i--, b++)
 	{
 		fwrite(&a[i], sizeof(a[i]), 1, fp);
 	}
 	fclose(fp);
 }
 
-/* 
+/*
 afficher les scores
 */
 void ScoreTop()
@@ -603,17 +587,15 @@ void ScoreTop()
 		p = GetMouseMsg();
 		switch (p.uMsg)
 		{
-		case(WM_LBUTTONDOWN) :
+		case(WM_LBUTTONDOWN):
 			if (p.x >= 520 && p.x <= 582 && p.y >= 14 && p.y <= 46)
 			{
-				WelcomeMenu();flag = 1;
+				WelcomeMenu(); flag = 1;
 			}
-							 break;
+			break;
 		}if (flag != 0) break;
 	}
 }
-
-
 void showScore() {
 	char str[10];
 	setfillcolor(BLACK);
@@ -621,7 +603,7 @@ void showScore() {
 	bar(450, 300, 575, 325);
 	setcolor(WHITE);
 	settextstyle(25, 0, "Calibri");
-	sprintf_s(str,sizeof(str), "score:%d", score);
+	sprintf_s(str, sizeof(str), "score:%d", score);
 	outtextxy(450, 300, str);
 }
 
@@ -642,7 +624,7 @@ void showLevel()
 
 	settextstyle(25, 0, "Calibri");
 
-	sprintf_s(str,sizeof(str), "Level:%d", level);
+	sprintf_s(str, sizeof(str), "Level:%d", level);
 
 	outtextxy(450, 250, str);
 

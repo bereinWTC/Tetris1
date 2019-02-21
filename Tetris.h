@@ -28,21 +28,21 @@ enum CMD
 };
 enum DRAW
 {
-	SHOW,	                       
-	HIDE,	                       
-	FIX		                       
+	SHOW,
+	HIDE,
+	FIX
 };
 struct Block
 {
 	WORD dir[4];                //structure des blocs
 	COLORREF  color;            //couleurs des bloc 
 };
-/* 
-il y a 7 types des bloc 
+/*
+il y a 7 types des bloc
 0x0f00 = [0000 1111 0000 0000]:	I horizontale
 0x4444=[0100 0100 0100 0100]: I verticale
 */
-Block g_blocks[7] = { 
+Block g_blocks[7] = {
 { 0x0F00, 0x4444, 0x0F00, 0x4444, RED },				// I
 { 0x0660, 0x0660, 0x0660, 0x0660, BLUE },				// O
 { 0x4460, 0x02E0, 0x0622, 0x0740, MAGENTA },			// L
@@ -50,7 +50,7 @@ Block g_blocks[7] = {
 { 0x0C60, 0x2640, 0x0C60, 0x2640, CYAN },				// Z
 { 0x0360, 0x4620, 0x0360, 0x4620, GREEN },				// Z oppose
 { 0x4E00, 0x4C40, 0x0E40, 0x4640, BROWN } };			// T
-												
+
 struct BlockInfo
 {
 	byte id;											// ID
@@ -85,4 +85,5 @@ void ScoreTop();                                        // disposer la liste des
 void showScore();                                       // afficher le score en temps réel
 void showLevel();                                       // afficher le niveau du jeu
 void DisplayPause();                                    // Pause
+
 
