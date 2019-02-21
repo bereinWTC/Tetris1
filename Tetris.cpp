@@ -4,7 +4,7 @@
 int score = 0;
 int level = 1;
 
-Pai user;                     // définir user pour stocker le score et nom de joueur
+Score_list user;                     // définir user pour stocker le score et nom de joueur
 
 
 void main()
@@ -31,20 +31,20 @@ void WelcomeMenu()
 		m = GetMouseMsg();
 		switch (m.uMsg)
 		{
-		case WM_LBUTTONDOWN:                      // op¨¦ration de la souris 
+		case WM_LBUTTONDOWN:													// opération de la souris 
 			if (m.x >= 268 && m.x <= 392 && m.y >= 268 && m.y <= 312)
 			{
-				flag = 1;
+				flag = 1;														//jouer
 				break;
 			}
 			else if (m.x >= 268 && m.x <= 392 && m.y >= 328 && m.y <= 370)
 			{
-				flag = 2;
+				flag = 2;														//Scores
 				break;
 			}
 			else if (m.x>268 && m.x <= 392 && m.y >= 388 && m.y <= 430)
 			{
-				flag = 3;
+				flag = 3;														//quitter
 
 				break;
 			}
@@ -52,15 +52,16 @@ void WelcomeMenu()
 		}
 		if (flag != 0) break;
 	}
-	if (flag == 1) {
+	if (flag == 1) 
+	{
 		Init();
 		CMD  c;
 		while (1)
 		{
-			// recevoir et ex¨¦cuter le commande 
-			c = GetCmd();
-			DispatchCmd(c);
-			// ouvrir un fen¨ºtre pour assurer quitter 
+			 
+			c = GetCmd();												//recevoir la commande
+			DispatchCmd(c);												// exécuter le commande
+			/* ouvrir un fenêtre pour assurer quitter*/
 			if (c == CMD_QUIT)
 			{
 				HWND wnd = GetHWnd();
@@ -74,7 +75,9 @@ void WelcomeMenu()
 	else if (flag == 3) 	Quit();
 }
 
-// initialiser
+/* 
+initialiser
+*/
 void Init()
 {
 
@@ -82,20 +85,20 @@ void Init()
 	initgraph(640, 480);
 
 	HWND hwnd = GetHWnd();                           
-	SetWindowText(hwnd, "Tetris");      // Titre de jeu 
+	SetWindowText(hwnd, "Tetris");												// Titre de jeu 
 
-											  // ouvrir la musique du background 
+	/* ouvrir la musique du background*/
 	mciSendString("open music\\change.mp3 alia mymusic", NULL, 0, NULL);
 	mciSendString("play music\\change.mp3 repeat", NULL, 0, NULL);
 
 
-	srand((unsigned)time(NULL));    // pour fabriquer un chiffre random 
+	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
 	IMAGE img(640, 480);
 	loadimage(&img, "Pic\\1-110501012153.jpg");
 	SetWorkingImage(&img);
 	showScore();
 	showLevel();
-	// disposer GUIDE
+	/*disposer GUIDE*/
 	settextstyle(35, 0, "Calibri");
 	setbkmode(TRANSPARENT);
 	outtextxy(50, 50, "GUIDE");
@@ -111,13 +114,13 @@ void Init()
 
 
 
-	// d¨¦finir la r¨¦gion pour jouer 
+	/*définir la région pour jouer*/
 	rectangle((WIDTH + 1)*SIZE - 1, SIZE - 1, (2 * WIDTH + 1)*SIZE, (HEIGHT + 1)*SIZE);
 	rectangle(439, 19, 520, 100);
 	SetWorkingImage();
 	putimage(0, 0, &img);
-	// commencer le jeux
-	NewGame();
+	/* commencer le jeux*/
+	NewGame();			
 
 
 }
@@ -127,26 +130,28 @@ void NewGame()
 {
 
 	setfillcolor(BLACK);
-	bar((WIDTH + 1)*SIZE, SIZE, (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);            // cr¨¦er un rectangle noir 
+	bar((WIDTH + 1)*SIZE, SIZE, (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);            // créer un rectangle noir 
 	ZeroMemory(game_area, WIDTH*HEIGHT);                                       
 
 
-																			   // commencer ¨¤ cr¨¦er des blocs
+	/* commencer à créer des blocs*/
 	g_NextBlock.id = rand() % 7;
 	g_NextBlock.dir = rand() % 4;
 	g_NextBlock.x = 11;
 	g_NextBlock.y = 21;
 
-	// obtenir le bloc prochain 
+	/* obtenir le bloc prochain */
 	NewBlock();
 }
 
-//GAMEOVER
+/*
+GAMEOVER
+*/
 void GameOver()
 {
 	HWND wnd = GetHWnd();
 	writefile(user);
-	Paihang(user);
+	score_list(user);
 	if (MessageBox(wnd, "GAME OVER \nJouer encore une fois?", "GAME OVER", MB_YESNO | MB_ICONQUESTION) == IDYES)
 	{
 
@@ -160,7 +165,9 @@ void GameOver()
 
 }
 
-//quitter
+/*
+quitter
+*/
 void Quit()
 {
 	closegraph();
@@ -168,13 +175,15 @@ void Quit()
 }
 
 
-DWORD  oldtime;            // contr?le de temp pour charge op¨¦ration 
-						   // recevoir l¨¨s commandes
+DWORD  oldtime;            // contrôle de temp pour charge opération 		
+/*
+recevoir less commandes
+*/
 CMD GetCmd()
 {
 	while (1)
 	{
-		// le bloc va tomber chaque 0.5s si il y a aucune op¨¦ration 
+		// le bloc va tomber chaque 0.5s si il y a aucune opération 
 		DWORD newtime = GetTickCount();       
 
 		if (newtime - oldtime >= 600 - level * 50)  
@@ -182,7 +191,7 @@ CMD GetCmd()
 			oldtime = newtime;
 			return CMD_DOWN;
 		}
-		if (_kbhit())                            // check the command
+		if (_kbhit())								// check the command
 		{
 			switch (_getch())                    
 			{
@@ -198,9 +207,9 @@ CMD GetCmd()
 			case 'p':  return CMD_STOP;
 			case 27:   return CMD_QUIT;
 			case ' ':  return CMD_SINK;
-			case 0:                           //speciale
-			case 0xE0:                        //speciale
-				switch (_getch())               //recevoir le commande prochain
+			case 0:									//speciale
+			case 0xE0:								//speciale
+				switch (_getch())					//recevoir le commande prochain
 				{
 				case 72:	return CMD_ROTATE;      //up
 				case 75:	return CMD_LEFT;        //left
@@ -230,9 +239,9 @@ void DispatchCmd(CMD _cmd)
 }
 
 
-/*Opération des blocs*/
-
-
+/*
+Opération des blocs
+*/
 void NewBlock()
 {
 	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
@@ -247,20 +256,18 @@ void NewBlock()
 		c >>= 4;
 	}
 
-	// cr¨¦er un bloc 
+	/* créer un bloc */
 	DrawBlock(g_CurBlock);
 
-	// cr¨¦er le bloc prochain 
+	/* créer le bloc prochain */
 	setfillcolor(BLACK);
 	bar(440, 20, 519, 99);
 	DrawBlock(g_NextBlock);
 
-	// les blocs tombent automatiquement
+	/* les blocs tombent automatiquement */
 	oldtime = GetTickCount();
 
 }
-
-
 
 void DrawBlock(BlockInfo _block, DRAW _draw)
 {
@@ -276,7 +283,7 @@ void DrawBlock(BlockInfo _block, DRAW _draw)
 	}
 	setfillcolor(color);                                         
 
-	for (int i = 0;i<16;i++)                                        //scanner un r¨¦gion de £´*£´ et dessiner le bloc 
+	for (int i = 0;i<16;i++)                                        //scanner une région de £´*£´ et dessiner le bloc 
 	{
 		if (b & 0x8000)
 		{
@@ -310,9 +317,9 @@ bool CheckBlock(BlockInfo _block)
 		{
 			x = _block.x + i % 4;
 			y = _block.y - i / 4;
-			if ((x<0) || (x >= WIDTH) || (y<0))                  //trop gauche ou trop droite
+			if ((x<0) || (x >= WIDTH) || (y<0))						//trop gauche ou trop droite
 				return false;
-			if ((y<HEIGHT) && (game_area[x][y]))             //trop haut
+			if ((y<HEIGHT) && (game_area[x][y]))					//trop haut
 				return false;
 
 		}
@@ -322,21 +329,23 @@ bool CheckBlock(BlockInfo _block)
 }
 
 
-// Rotation
+/* 
+Rotation
+*/
 void OnRotate()
 {
 
 	int distance;
 	BlockInfo temp = g_CurBlock;
-	temp.dir++;              if (CheckBlock(temp)) { distance = 0; goto rotate; }      // rotation sans bouger
-	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }     // bouger ¨¤ gauche pour un unit¨¦ et apr¨¨s tourner 
-	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }      // bouger ¨¤ droite pour un unit¨¦ et apr¨¨s tourner
-	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }     // bouger ¨¤ gauche pour 2 unit¨¦s et apr¨¨s tourner
-	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }      // bouger ¨¤ droite pour 2 unit¨¦s et apr¨¨s tourner
+	temp.dir++;              if (CheckBlock(temp)) { distance = 0; goto rotate; }			// rotation sans bouger
+	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }		// bouger à gauche pour un unité et après tourner 
+	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }		// bouger à droite pour un unité et après tourner
+	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }		// bouger à gauche pour 2 unités et après tourner
+	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }		// bouger à droite pour 2 unités et après tourner
 	return;
 
-	//rotation:tuer le bloc ¨¤ l'instant et cr¨¦er un nouveau bloc(qui est 'tourn¨¦') 
-rotate:
+	//rotation:tuer le bloc à l'instant et créer un nouveau bloc(qui est 'tourné') 
+	rotate:
 	DrawBlock(g_CurBlock, HIDE);  
 	++g_CurBlock.dir;
 	g_CurBlock.x += distance;
@@ -394,26 +403,26 @@ void OnSink()
 {
 	int i, x, y;
 	int count = 0;
-	// continuer ¨¤ bouger au dessous
+	/* continuer à bouger au dessous */
 	DrawBlock(g_CurBlock, HIDE);
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
-	while (CheckBlock(temp))          //assurer que le bloc peut bouger 
+	while (CheckBlock(temp))									//assurer que le bloc peut bouger 
 	{
 		--g_CurBlock.y;
 		--temp.y;
 	}
-	DrawBlock(g_CurBlock, FIX);      //continue ¨¤ bouger au dessus si possible
+	DrawBlock(g_CurBlock, FIX);									//continue à bouger au dessus si possible
 
-									 // mettre le bloc sur la place finale
+	/* mettre le bloc sur la place finale */
 	WORD b = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
 	for (i = 0; i < 16; i++)
 	{
 		if (b & 0x8000)
 		{
 			if (g_CurBlock.y - i / 4 >= HEIGHT)
-			{	// si la place finale est trop haut - GAMEOVER
-				GameOver();
+			{	
+				GameOver();										// si la place finale est trop haut - GAMEOVER
 				return;
 			}
 			else
@@ -423,7 +432,7 @@ void OnSink()
 		b <<= 1;
 	}
 
-	// confirmer est-ce que on doit supprimer un ou plusieurs lignes
+	/* confirmer est-ce que on doit supprimer un ou plusieurs lignes*/
 	int row[4] = { 0 };
 	bool bRow = false;
 	for (y = g_CurBlock.y; y >= max(g_CurBlock.y - 3, 0);y--)
@@ -435,7 +444,7 @@ void OnSink()
 		if (i == WIDTH)
 		{
 			bRow = true;
-			row[g_CurBlock.y - y] = 1;    // marquer le ligne
+			row[g_CurBlock.y - y] = 1;						// marquer le ligne
 			setfillcolor(WHITE);
 			bar(220, (HEIGHT - y - 1)*SIZE + SIZE / 2 - 2 + 20, WIDTH * SIZE - 1 + 220, (HEIGHT - y - 1) * SIZE + SIZE / 2 + 2 + 20);
 		}
@@ -444,7 +453,7 @@ void OnSink()
 	if (bRow)
 	{
 		Sleep(200);
-		// supprimer le ligne marqu¨¦ 
+		/* supprimer le ligne marqué */
 		IMAGE img;
 		for (i = 0; i < 4; i++)
 		{
@@ -460,22 +469,23 @@ void OnSink()
 				getimage(&img, 220, 20, WIDTH * SIZE, (HEIGHT - (g_CurBlock.y - i + 1)) * SIZE);
 				putimage(220, SIZE + 20, &img);
 			}
-		}// calculer le score et le niveaux de difficult¨¦ 
+		}
+		/* calculer le score et le niveaux de difficulté*/ 
 		score += count * 10;
 		showScore();
-		level = score / 100 + 1;
+		level = score / 100 + 1;					          //le niveau est incrémenté tanque tout les 100 points de score 
 		showLevel();
 	}
-
-	// cr¨¦er un nouveau bloc
-	NewBlock();
+	NewBlock();												  // créer un nouveau bloc
 }
 
 
 
 
-// stocker le score après GAMEOVER
-void writefile(Pai &P)
+/* 
+stocker le score après GAMEOVER
+*/
+void writefile(Score_list &S)
 {
 
 
@@ -488,9 +498,9 @@ void writefile(Pai &P)
 	}
 	do
 	{
-		InputBox(P.name, 10, "Votre prenom£º");      // ajouter le pr¨¦nom de joueur 
-		P.grades = score;
-		fwrite(&P, sizeof(P), 1, fp);
+		InputBox(S.name, 10, "Votre prénom");					// ajouter le prénom de joueur 
+		S.grades = score;
+		fwrite(&S, sizeof(S), 1, fp);
 
 
 		break;
@@ -499,8 +509,10 @@ void writefile(Pai &P)
 
 }
 
-// lire les information de la liste des scores
-int readfile(Pai &P)
+/*
+lire les information de la liste des scores
+*/
+int readfile(Score_list &S)
 {
 	int x = 78, y = 70, z = 455, i = 1;
 	char ch_grades[5], ch[1], dot = '.';
@@ -514,13 +526,13 @@ int readfile(Pai &P)
 	settextstyle(33, 0, "Calibri");
 	setbkmode(TRANSPARENT);
 
-	while (fread(&P, sizeof(P), 1, fp) == 1)
+	while (fread(&S, sizeof(S), 1, fp) == 1)
 	{
 		sprintf_s(ch,sizeof(ch), "%d", i);
 		outtextxy(x - 22, y, ch);
 		outtextxy(x - 11, y, dot);
-		outtextxy(x, y, P.name);
-		sprintf_s(ch_grades,sizeof(ch_grades), "%g", P.grades);
+		outtextxy(x, y, S.name);
+		sprintf_s(ch_grades,sizeof(ch_grades), "%g", S.grades);
 		outtextxy(z, y, ch_grades);
 		y += 35;
 		i++;
@@ -529,10 +541,12 @@ int readfile(Pai &P)
 	return 0;
 }
 
-// Pour le liste des scores après jouer
-void Paihang(Pai &P)
+/* 
+Pour le liste des scores après jouer
+*/
+void score_list(Score_list &S)
 {
-	Pai a[12];
+	Score_list a[12];
 	FILE *fp;
 	int length;
 
@@ -540,10 +554,10 @@ void Paihang(Pai &P)
 	int i, j;
 	fopen_s(&fp,"data_storage\\ScoreTop.rec", "rb");
 
-	for (i = 1;fread(&P, sizeof(P), 1, fp) == 1 && i <= 11;i++)
+	for (i = 1;fread(&S, sizeof(S), 1, fp) == 1 && i <= 11;i++)
 	{
 
-		a[i] = P;
+		a[i] = S;
 	}
 
 	length = i - 1;
@@ -570,15 +584,17 @@ void Paihang(Pai &P)
 	fclose(fp);
 }
 
-// afficher les scores
+/* 
+afficher les scores
+*/
 void ScoreTop()
 {
 	initgraph(640, 480);
 	IMAGE img(640, 480);
 	loadimage(&img, "Pic\\Scoretop.jpg");
 	SetWorkingImage(&img);
-	Pai P;
-	readfile(P);
+	Score_list S;
+	readfile(S);
 	SetWorkingImage();
 	putimage(0, 0, &img);
 	MOUSEMSG p;
@@ -600,24 +616,18 @@ void ScoreTop()
 
 void showScore() {
 	char str[10];
-
 	setfillcolor(BLACK);
-
 	rectangle(449, 299, 576, 326);
-
 	bar(450, 300, 575, 325);
-
 	setcolor(WHITE);
-
 	settextstyle(25, 0, "Calibri");
-
 	sprintf_s(str,sizeof(str), "score:%d", score);
-
 	outtextxy(450, 300, str);
-
 }
 
-//niveau de difficult¨¦ 
+/*
+Afficher le niveau de difficulté
+*/
 void showLevel()
 {
 	char str[10];
@@ -638,7 +648,9 @@ void showLevel()
 
 }
 
-// Pause
+/*
+Pause
+*/
 void DisplayPause()
 {
 	while (_getch() != 'p'&&_getch() != 'P')

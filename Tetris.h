@@ -9,13 +9,12 @@
 #define	SIZE	20										// chaque unite est de 20 pixels
 
 
-struct Pai
+struct Score_list
 {
 	char name[20];
 	double grades;
 };
-typedef struct Pai Pai;
-
+typedef struct Score_list Score_list;
 /*
 les commandes du jeu
 */
@@ -79,11 +78,11 @@ void OnLeft();											// bouger vers le gauche
 void OnRight();											// bouger vers le droite
 void OnDown();											// bouger vers le bas
 void OnSink();                                          // aller tout droite au dessous 
-void writefile(Pai &P);                                 // écrire les scores
-int  readfile(Pai &P);                                  // lire les scores 
-void Paihang(Pai &P);                                   // lister les scores
+void writefile(Score_list &P);                                 // écrire les scores
+int  readfile(Score_list &P);                                  // lire les scores 
+void score_list(Score_list &P);                                   // lister les scores
 void ScoreTop();                                        // disposer la liste des scores
-void showScore();                                       // 
-void showLevel();                                       // 
+void showScore();                                       // afficher le score en temps réel
+void showLevel();                                       // afficher le niveau du jeu
 void DisplayPause();                                    // Pause
 
