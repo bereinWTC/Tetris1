@@ -1,3 +1,5 @@
 ﻿  Tetris.cpp
-d:\semestre 2\tetris1\tetris.cpp(191): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(199): warning C4018: '>=': signed/unsigned mismatch
+  main.cpp
+  Generating Code...
   Tetris.vcxproj -> D:\Semestre 2\Tetris1\Debug\Tetris.exe

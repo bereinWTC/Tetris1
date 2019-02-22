@@ -33,21 +33,16 @@ BlockInfo g_CurBlock, g_NextBlock;
 
 
 
-void Tetris::play()
+void Tetris::start()
 {
 	WelcomeMenu();
+	int flag = get_choice();
+	goto_choice(flag);
 	_getch();
 	closegraph();
 }
-void Tetris::WelcomeMenu()
+int  Tetris::get_choice()
 {
-
-	initgraph(640, 480);
-	IMAGE img(640, 480);
-	loadimage(&img, "Pic\\Welcome_menu_1.jpg");
-	SetWorkingImage(&img);
-	SetWorkingImage();
-	putimage(0, 0, &img);
 	MOUSEMSG m;
 	int flag = 0;
 	while (TRUE)
@@ -75,30 +70,49 @@ void Tetris::WelcomeMenu()
 
 		}
 		if (flag != 0) break;
+		
 	}
-	if (flag == 1)
+	return flag;
+
+}
+void Tetris::play_game()
+{
+	game_board_init();
+	/* commencer le jeux*/
+	NewGame();
+	CMD  c;
+	while (1)
 	{
-		Init();
-		CMD  c;
-		while (1)
+
+		c = GetCmd();												//recevoir la commande
+		
+(c);												// exécuter le commande
+		/* ouvrir un fenêtre pour assurer quitter*/
+		if (c == CMD_QUIT)
 		{
-
-			c = GetCmd();												//recevoir la commande
-			DispatchCmd(c);												// exécuter le commande
-			/* ouvrir un fenêtre pour assurer quitter*/
-			if (c == CMD_QUIT)
-			{
-				HWND wnd = GetHWnd();
-				if (MessageBox(wnd, "Est-ce que vous voulez quitter?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
-					Quit();
-			}
-
+			HWND wnd = GetHWnd();
+			if (MessageBox(wnd, "Est-ce que vous voulez quitter?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+				Quit();
 		}
+
 	}
-	else if (flag == 2)  ScoreTop();
+}
+void Tetris::goto_choice(int flag)
+{
+	if (flag == 1) play_game();
+	else if (flag == 2)  top_score();
 	else if (flag == 3) 	Quit();
 }
-void Tetris::Init()
+void Tetris::WelcomeMenu()
+{
+	initgraph(640, 480);
+	IMAGE img(640, 480);
+	loadimage(&img, "Pic\\Welcome_menu_1.jpg");
+	SetWorkingImage(&img);
+	SetWorkingImage();
+	putimage(0, 0, &img);
+}
+void Tetris::game_board_init()
 {
 	initgraph(640, 480);
 
@@ -109,14 +123,15 @@ void Tetris::Init()
 	mciSendString("open music\\change.mp3 alia mymusic", NULL, 0, NULL);
 	mciSendString("play music\\change.mp3 repeat", NULL, 0, NULL);
 
-
+	
 	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
 	IMAGE img(640, 480);
 	loadimage(&img, "Pic\\1-110501012153.jpg");
 	SetWorkingImage(&img);
 	showScore();
 	showLevel();
-	/*disposer GUIDE*/
+	
+	/*region pour afficher le guide du jeur*/
 	settextstyle(35, 0, "Calibri");
 	setbkmode(TRANSPARENT);
 	outtextxy(50, 50, "GUIDE");
@@ -137,25 +152,18 @@ void Tetris::Init()
 	rectangle(439, 19, 520, 100);
 	SetWorkingImage();
 	putimage(0, 0, &img);
-	/* commencer le jeux*/
-	NewGame();
 
-
+}
+void Tetris::reset_game_area()
+{
+	
+	setfillcolor(BLACK);
+	bar((WIDTH + 1)*SIZE, SIZE, (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);
+	ZeroMemory(game_area, WIDTH*HEIGHT);
 }
 void Tetris::NewGame()
 {
-
-	setfillcolor(BLACK);
-	bar((WIDTH + 1)*SIZE, SIZE, (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);            // créer un rectangle noir 
-	ZeroMemory(game_area, WIDTH*HEIGHT);
-
-
-	/* commencer à créer des blocs*/
-	g_NextBlock.id = rand() % 7;
-	g_NextBlock.dir = rand() % 4;
-	g_NextBlock.x = 11;
-	g_NextBlock.y = 21;
-
+	reset_game_area();
 	/* obtenir le bloc prochain */
 	NewBlock();
 }
@@ -181,7 +189,7 @@ void Tetris::Quit()
 	closegraph();
 	exit(0);
 }		
-CMD Tetris::GetCmd()
+CMD  Tetris::GetCmd()
 {
 	while (1)
 	{
@@ -239,12 +247,20 @@ void Tetris::DispatchCmd(CMD _cmd)
 }
 void Tetris::NewBlock()
 {
+
+	/* générer la configuaration de nouveau block*/
+	g_NextBlock.id = rand() % 7;
+	g_NextBlock.dir = rand() % 4;
+	g_NextBlock.x = 11;
+	g_NextBlock.y = 21;
+	/*passer la configuration de nouveau block au block current*/
 	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
 	g_CurBlock.dir = g_NextBlock.dir, g_NextBlock.dir = rand() % 4;
 	g_CurBlock.x = 3;
 	g_CurBlock.y = 24;
 
 	WORD c = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
+
 	while ((c & 0X000F) == 0)
 	{
 		--g_CurBlock.y;
@@ -324,7 +340,7 @@ void Tetris::OnRotate()
 
 	int distance;
 	BlockInfo temp = g_CurBlock;
-	temp.dir++;              if (CheckBlock(temp)) { distance = 0; goto rotate; }			// rotation sans bouger
+	temp.dir++;					 if (CheckBlock(temp)) { distance = 0; goto rotate; }		// rotation sans bouger
 	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }		// bouger à gauche pour un unité et après tourner 
 	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }		// bouger à droite pour un unité et après tourner
 	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }		// bouger à gauche pour 2 unités et après tourner
@@ -545,7 +561,7 @@ void Tetris::score_list(Score_list &S)
 	}
 	fclose(fp);
 }
-void Tetris::ScoreTop()
+void Tetris::top_score()
 {
 	initgraph(640, 480);
 	IMAGE img(640, 480);

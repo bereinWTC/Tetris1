@@ -3,6 +3,6 @@
 void main()
 {
 	Tetris tetris;
-	tetris.play();
+	tetris.start();
 
 }

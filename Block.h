@@ -5,3 +5,5 @@ struct Block
 	WORD dir[4];                //structure des blocs
 	COLORREF  color;            //couleurs des bloc 
 };
+
+//WORD: UINT16
