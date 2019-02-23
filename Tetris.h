@@ -1,4 +1,4 @@
-
+#pragma once
 #include "CMD.h"
 #include "BlockInfo.h"
 #include "Score_list.h"

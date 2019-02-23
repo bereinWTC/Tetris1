@@ -84,9 +84,8 @@ void Tetris::play_game()
 	while (1)
 	{
 
-		c = GetCmd();												//recevoir la commande
-		
-(c);												// exécuter le commande
+		c = GetCmd();											    //recevoir la commande
+		DispatchCmd(c);												// exécuter le commande
 		/* ouvrir un fenêtre pour assurer quitter*/
 		if (c == CMD_QUIT)
 		{

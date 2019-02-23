@@ -4,5 +4,5 @@ struct BlockInfo
 {
 	byte id;											// ID
 	char x, y;											// coordonnee
-	byte dir : 2;										// direction
+	byte dir : 2;										// 4 directions(codé en 2 bits)
 };
