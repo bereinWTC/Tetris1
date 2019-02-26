@@ -9,7 +9,7 @@
 #pragma comment(lib,"Winmm.lib")						// utilisation de Winmm.lib
 
 
-/*définir le score et le niveau de difficult?/*/
+/*définir le score et le niveau de difficult*/
  BYTE game_area[WIDTH][HEIGHT] = { 0 };
  DWORD  oldtime;										// contrôle de temp pour charge opération 
  Score_list user;										// définir user pour stocker le score et nom de joueur
@@ -34,7 +34,7 @@ il y a 7 types des bloc
 
  /*tableaux qui servent au IA pour faire la descision*/
  int AI_dec_area[WIDTH][HEIGHT] = { -1 };				//C'est un tableau qui stock les trous occupée par un bloc leur niveau et -1 pour la cache vide 
- int max_table[WIDTH] = { -1 };							//
+ int max_table[WIDTH] = { -1 };							// stock la valeur maximum de AI_dec_area
 
 
 

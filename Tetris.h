@@ -33,9 +33,9 @@ public :
 	void showLevel();                                       // afficher le niveau du jeu
 	void DisplayPause();                                    // Pause
 	void reset_game_area();									// clear game area and put it in black
-	int	  readfile(Score_list &S);
-	void  Quit();
-	Tetris();
+	int	  readfile(Score_list &S);							//afficher le list de score 
+	void  Quit();											//quitter le jeu
+	Tetris();												//construteur par défaut 
 	Tetris(int xscore, int xlevel, int xposition);
 	void setmulti();
 	///////////some functions for that will be overloaded////////
@@ -66,18 +66,4 @@ private:
 	
 };
 
-
-/*
-void start(Tetris tetris1, Tetris tetris2);					// afficher la page d'acceuil
-int  get_choice();											// recevoir le choice de joueur par le souris 
-void play_game(Tetris tetris1, Tetris tetris2);				// Comencer ?jouer 
-void goto_choice(int flag,Tetris tetris1, Tetris tetris2);	// prendre l'action selon le chois de joueur
-int  readfile(Score_list &P);                               // lire les scores 
-void WelcomeMenu();											// le menu au debut pour commencer le jeu
-void game_board_init(Tetris tetris1, Tetris tetris2);	    // initialisation de game board
-void Quit();												// quitter
-void top_score();											// disposer la liste des scores
-
-*/
-////my commentaire/////
 
