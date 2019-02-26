@@ -2,21 +2,21 @@
 #include <conio.h>
 #include <time.h>
 #include <stdio.h>
-#include <stdlib.h>   
+#include <stdlib.h>  
+
 
 
 #pragma comment(lib,"Winmm.lib")						// utilisation de Winmm.lib
 
+
 /*définir le score et le niveau de difficult?/*/
-BYTE game_area[WIDTH][HEIGHT] = { 0 };
-DWORD  oldtime;											// contrôle de temp pour charge opération 
-Score_list user;										// définir user pour stocker le score et nom de joueur
-/*
-il y a 7 types des bloc
-0x0f00 = [0000 1111 0000 0000]:	I horizontale
-0x4444=[0100 0100 0100 0100]: I verticale
-*/
-Block g_blocks[7] = {
+ BYTE game_area[WIDTH][HEIGHT] = { 0 };
+ DWORD  oldtime;										// contrôle de temp pour charge opération 
+ Score_list user;										// définir user pour stocker le score et nom de joueur
+ int flag = 0;
+
+ /*L'ensemble de blocs possible*/
+ Block g_blocks[7] = {
 { 0x0F00, 0x4444, 0x0F00, 0x4444, RED },				// I
 { 0x0660, 0x0660, 0x0660, 0x0660, BLUE },				// O
 { 0x4460, 0x02E0, 0x0622, 0x0740, MAGENTA },			// L
@@ -24,8 +24,18 @@ Block g_blocks[7] = {
 { 0x0C60, 0x2640, 0x0C60, 0x2640, CYAN },				// Z
 { 0x0360, 0x4620, 0x0360, 0x4620, GREEN },				// Z oppose
 { 0x4E00, 0x4C40, 0x0E40, 0x4640, BROWN } };			// T
+ /*
+il y a 7 types des bloc
+0x0f00 = [0000 1111 0000 0000]:	I horizontale
+0x4444=[0100 0100 0100 0100]: I verticale
+*/
 
-BlockInfo g_CurBlock, g_NextBlock;
+ /*Le bloc courrant et le bloc prochain*/
+ BlockInfo g_CurBlock, g_NextBlock;
+
+ /*tableaux qui servent au IA pour faire la descision*/
+ int AI_dec_area[WIDTH][HEIGHT] = { -1 };				//C'est un tableau qui stock les trous occupée par un bloc leur niveau et -1 pour la cache vide 
+ int max_table[WIDTH] = { -1 };							//
 
 
 
@@ -59,8 +69,6 @@ void Tetris::GameOver()
 
 
 }
-
-
 void Tetris::NewBlock()
 {
 
@@ -119,10 +127,10 @@ void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 			{
 				if (_draw != HIDE)
 				{
-					bar3d(position+x*SIZE + 2 + 220, (HEIGHT - y - 1)*SIZE + 2 + 20, position + (x + 1)*SIZE - 4 + 220, (HEIGHT - y)*SIZE - 4 + 20, 3, true);
+					bar3d(x*SIZE + 2 + 220, (HEIGHT - y - 1)*SIZE + 2 + 20, (x + 1)*SIZE - 4 + 220, (HEIGHT - y)*SIZE - 4 + 20, 3, true);
 				}
 				else
-					bar(position + x*SIZE + 220, (HEIGHT - y - 1)*SIZE + 20, position + (x + 1)*SIZE - 1 + 220, (HEIGHT - y)*SIZE - 1 + 20);
+					bar(x*SIZE + 220, (HEIGHT - y - 1)*SIZE + 20, (x + 1)*SIZE - 1 + 220, (HEIGHT - y)*SIZE - 1 + 20);
 
 			}
 		}
@@ -151,19 +159,18 @@ bool Tetris::CheckBlock(BlockInfo _block)
 	}
 	return true;
 }
-
 CMD  Tetris::GetCmd()
 {
 	while (1)
 	{
 		// le bloc va tomber chaque 0.5s si il y a aucune opération 
+		Sleep(200);
 		DWORD newtime = GetTickCount();
-
-//		if (newtime - oldtime >= 600 - level * 50)
-//		{
-//			oldtime = newtime;
-//			return CMD_DOWN;
-//		}
+		if (newtime - oldtime >= 600 - level * 50)
+		{
+			oldtime = newtime;
+			return CMD_DOWN;
+		}
 		if (_kbhit())								// check the command
 		{
 			switch (_getch())
@@ -193,9 +200,10 @@ CMD  Tetris::GetCmd()
 
 		}
 		else {
-			return CMD_DOWN;km,¡¢9
+			return CMD_DOWN;
 		}
-		Sleep(20);
+
+
 	}
 }
 void Tetris::DispatchCmd(CMD _cmd)
@@ -211,7 +219,6 @@ void Tetris::DispatchCmd(CMD _cmd)
 	case CMD_QUIT:		break;
 	}
 }
-
 void Tetris::OnRotate()
 {
 
@@ -269,12 +276,11 @@ void Tetris::OnDown()
 	}
 	else OnSink();
 }
-
 void Tetris::OnSink()
 {
 	int i, x, y;
 	int count = 0;
-	/* continuer ?bouger au dessous */
+	// continuer à bouger au dessous 
 	DrawBlock(g_CurBlock, HIDE);
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
@@ -283,9 +289,9 @@ void Tetris::OnSink()
 		--g_CurBlock.y;
 		--temp.y;
 	}
-	DrawBlock(g_CurBlock, FIX);									//continue ?bouger au dessus si possible
+	DrawBlock(g_CurBlock, FIX);									//continue à bouger au dessus si possible
 
-	/* mettre le bloc sur la place finale */
+	// mettre le bloc sur la place finale 
 	WORD b = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
 	for (i = 0; i < 16; i++)
 	{
@@ -297,13 +303,22 @@ void Tetris::OnSink()
 				return;
 			}
 			else
+			{
 				game_area[g_CurBlock.x + i % 4][g_CurBlock.y - i / 4] = 1;
+				if (flag == 2)
+				{
+					AI_dec_area[g_CurBlock.x + i % 4][g_CurBlock.y - i / 4] = g_CurBlock.y - i / 4;
+					cal_max_in_col();
+				}
+
+			}
+
 		}
 
 		b <<= 1;
 	}
 
-	/* confirmer est-ce que on doit supprimer un ou plusieurs lignes*/
+	// confirmer est-ce que on doit supprimer un ou plusieurs lignes
 	int row[4] = { 0 };
 	bool bRow = false;
 	for (y = g_CurBlock.y; y >= max(g_CurBlock.y - 3, 0); y--)
@@ -317,14 +332,14 @@ void Tetris::OnSink()
 			bRow = true;
 			row[g_CurBlock.y - y] = 1;						// marquer le ligne
 			setfillcolor(WHITE);
-			bar(position+220, (HEIGHT - y - 1)*SIZE + SIZE / 2 - 2 + 20, position+WIDTH * SIZE - 1 + 220, (HEIGHT - y - 1) * SIZE + SIZE / 2 + 2 + 20);
+			bar(220, (HEIGHT - y - 1)*SIZE + SIZE / 2 - 2 + 20, WIDTH * SIZE - 1 + 220, (HEIGHT - y - 1) * SIZE + SIZE / 2 + 2 + 20);
 		}
 	}
 
 	if (bRow)
 	{
-		Sleep(200);
-		/* supprimer le ligne marqu?*/
+		Sleep(20);
+		// supprimer le ligne marqué 
 		IMAGE img;
 		for (i = 0; i < 4; i++)
 		{
@@ -336,15 +351,23 @@ void Tetris::OnSink()
 					{
 						game_area[x][y - 1] = game_area[x][y];
 						game_area[x][y] = 0;
+
+						//pour le AI_dec_area
+						if (flag == 2)
+						{
+							AI_dec_area[x][y - 1] = AI_dec_area[x][y] - 1;
+							game_area[x][y] = -1;
+							cal_max_in_col();
+						}
 					}
 				getimage(&img, 220, 20, WIDTH * SIZE, (HEIGHT - (g_CurBlock.y - i + 1)) * SIZE);
 				putimage(220, SIZE + 20, &img);
 			}
 		}
-		/* calculer le score et le niveaux de difficult?/*/
+		// calculer le score et le niveaux de difficulté
 		score += count * 10;
 		showScore();
-		level = score / 100 + 1;					          //le niveau est incrément?tanque tout les 100 points de score 
+		level = score / 100 + 1;					          //le niveau est incrémenté tanque tout les 100 points de score 
 		showLevel();
 	}
 	NewBlock();												  // créer un nouveau bloc
@@ -372,7 +395,6 @@ void Tetris::writefile(Score_list &S)
 	fclose(fp);
 
 }
-
 void Tetris::score_list(Score_list &S)
 {
 	Score_list a[12];
@@ -412,7 +434,6 @@ void Tetris::score_list(Score_list &S)
 	}
 	fclose(fp);
 }
-
 void Tetris::showScore() {
 	char str[10];
 	setfillcolor(BLACK);
@@ -447,6 +468,410 @@ void Tetris::DisplayPause()
 	while (_getch() != 'p'&&_getch() != 'P')
 		;
 }
+Tetris::Tetris()
+{
+	score = 0; level = 1; position = 0;
+}
+Tetris::Tetris(int xscore, int xlevel, int xposition)
+{
+	score = xscore;
+	level = xlevel;
+	position = xposition;
+}
+//////////////from main function//////////
+void  Tetris::start(Tetris tetris1, Tetris tetris2)
+{
+	WelcomeMenu();
+	int flag = get_choice();
+	goto_choice(flag, tetris1, tetris2);
+	_getch();
+	closegraph();
+}
+void  Tetris::WelcomeMenu()
+{
+	initgraph(640, 480);
+	IMAGE img(640, 480);
+	loadimage(&img, "Pic\\Welcome_menu_1.jpg");
+	SetWorkingImage(&img);
+	SetWorkingImage();
+	putimage(0, 0, &img);
+}
+int   Tetris::get_choice()
+{
+	MOUSEMSG m;
+	int flag = 0;
+	while (TRUE)
+	{
+		m = GetMouseMsg();
+		switch (m.uMsg)
+		{
+		case WM_LBUTTONDOWN:													// opération de la souris 
+			if (m.x >= 268 && m.x <= 392 && m.y >= 268 && m.y <= 312)
+			{
+				flag = 1;														//jouer
+				break;
+			}
+			else if (m.x >= 268 && m.x <= 392 && m.y >= 328 && m.y <= 370)
+			{
+				flag = 2;														//Scores
+				break;
+			}
+			else if (m.x > 268 && m.x <= 392 && m.y >= 388 && m.y <= 430)
+			{
+				flag = 3;														//quitter
+
+				break;
+			}
+
+		}
+		if (flag != 0) break;
+
+	}
+	return flag;
+
+}
+void  Tetris::goto_choice(int flag, Tetris tetris1, Tetris tetris2)
+{
+	if (flag == 1) play_game(tetris1, tetris2);
+	else if (flag == 2)  top_score();
+	else if (flag == 3) 	Quit();
+}
+void  Tetris::play_game(Tetris tetris1, Tetris tetris2)
+{
+	game_board_init(tetris1, tetris2);
+	/* commencer le jeux*/
+	tetris1.NewGame();
+	tetris2.NewGame();
+	CMD  c, d;
+	while (1)
+	{
+
+		c = tetris1.GetCmd();											    //recevoir la commande
+		d = tetris2.GetCmd();
+		tetris1.DispatchCmd(c);												// exécuter le commande
+		tetris2.DispatchCmd(d);
+		/* ouvrir un fenêtre pour assurer quitter*/
+		if (c == CMD_QUIT)
+		{
+			HWND wnd = GetHWnd();
+			if (MessageBox(wnd, "Est-ce que vous voulez quitter?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+				Quit();
+		}
+
+	}
+}
+void  Tetris::top_score()
+{
+	initgraph(640, 480);
+	IMAGE img(640, 480);
+	loadimage(&img, "Pic\\Scoretop.jpg");
+	SetWorkingImage(&img);
+	Score_list S;
+	readfile(S);
+	SetWorkingImage();
+	putimage(0, 0, &img);
+	MOUSEMSG p;
+	int flag = 0;
+	while (TRUE) {
+		p = GetMouseMsg();
+		switch (p.uMsg)
+		{
+		case(WM_LBUTTONDOWN):
+			if (p.x >= 520 && p.x <= 582 && p.y >= 14 && p.y <= 46)
+			{
+				WelcomeMenu(); flag = 1;
+			}
+			break;
+		}if (flag != 0) break;
+	}
+}
+void  Tetris::game_board_init(Tetris tetris1, Tetris tetris2)
+{
+	initgraph(960, 480);
+
+	HWND hwnd = GetHWnd();
+	SetWindowText(hwnd, "Tetris");												// Titre de jeu 
+
+																				/* ouvrir la musique du background*/
+	mciSendString("open music\\change.mp3 alia mymusic", NULL, 0, NULL);
+	mciSendString("play music\\change.mp3 repeat", NULL, 0, NULL);
+
+
+	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
+	IMAGE img(960, 480);
+	loadimage(&img, "Pic\\1-110501012153.jpg");
+	SetWorkingImage(&img);
+	tetris1.showScore();
+	tetris1.showLevel();
+
+	/*region pour afficher le guide du jeur*/
+	settextstyle(35, 0, "Calibri");
+	setbkmode(TRANSPARENT);
+	outtextxy(50, 50, "GUIDE");
+	settextstyle(20, 0, "Calibri");
+	outtextxy(55, 135, "up-rotate");
+	outtextxy(55, 155, "left-move left");
+	outtextxy(55, 175, "down-move down");
+	outtextxy(55, 195, "right-move right");
+	outtextxy(55, 215, "space-to the bottom");
+	outtextxy(55, 235, "ESC-quit");
+	settextstyle(22, 0, "Calibri");
+	outtextxy(60, 300, "P-Pause the game");
 
 
 
+	/*définir la région pour jouer*/
+	rectangle((WIDTH + 1)*SIZE - 1, SIZE - 1, (2 * WIDTH + 1)*SIZE, (HEIGHT + 1)*SIZE);
+	rectangle(480 + (WIDTH + 1)*SIZE - 1, SIZE - 1, 480 + (2 * WIDTH + 1)*SIZE, (HEIGHT + 1)*SIZE);
+	rectangle(339, 19, 420, 100);
+	SetWorkingImage();
+	putimage(0, 0, &img);
+
+}
+int	  Tetris::readfile(Score_list &S)
+{
+	int x = 78, y = 70, z = 455, i = 1;
+	char ch_grades[5], ch[1], dot = '.';
+	FILE *fp;
+	fopen_s(&fp, "data_storage\\ScoreTop.rec", "rb");
+	if (!fp)
+	{
+		printf("file cannot be opened");
+		exit(1);
+	}
+	settextstyle(33, 0, "Calibri");
+	setbkmode(TRANSPARENT);
+
+	while (fread(&S, sizeof(S), 1, fp) == 1)
+	{
+		sprintf_s(ch, sizeof(ch), "%d", i);
+		outtextxy(x - 22, y, ch);
+		outtextxy(x - 11, y, dot);
+		outtextxy(x, y, S.name);
+		sprintf_s(ch_grades, sizeof(ch_grades), "%g", S.grades);
+		outtextxy(z, y, ch_grades);
+		y += 35;
+		i++;
+	}
+	fclose(fp);
+	return 0;
+}
+void  Tetris::Quit()
+{
+	closegraph();
+	exit(0);
+}
+
+///////////some functions for that will be overloaded//////////////
+void Tetris::start()
+{
+	WelcomeMenu();
+	flag = get_choice();
+	goto_choice(flag);
+	_getch();
+	closegraph();
+}
+void Tetris::goto_choice(int flag)
+{
+	/*
+	if (flag == 1) play_game();
+	else if (flag == 2)  top_score();
+	else if (flag == 3) 	Quit();
+	*/
+	if (flag == 1 || flag == 2) play_game();
+	else if (flag == 3)
+	{
+		Tetris tetris1(0, 1, 0), tetris2(0, 1, 480);
+		play_game(tetris1, tetris2);
+	}
+}
+void Tetris::play_game()
+{
+	game_board_init();
+	/* commencer le jeux*/
+	NewGame();
+	CMD  c;
+	if (flag == 1)
+	{
+		while (1)
+		{
+			c = GetCmd();											    //recevoir la commande
+			DispatchCmd(c);												// exécuter le commande
+			/* ouvrir un fenêtre pour assurer quitter*/
+			if (c == CMD_QUIT)
+			{
+				HWND wnd = GetHWnd();
+				if (MessageBox(wnd, "Est-ce que vous voulez quitter?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+					Quit();
+			}
+
+		}
+	}
+	else if (flag == 2)
+	{
+		while (1)
+		{
+			c = GetAiCmd();
+			DispatchCmd(c);												// exécuter le commande
+			/* ouvrir un fenêtre pour assurer quitter*/
+			if (c == CMD_QUIT)
+			{
+				HWND wnd = GetHWnd();
+				if (MessageBox(wnd, "Est-ce que vous voulez quitter?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
+					Quit();
+			}
+
+		}
+	}
+	
+}
+void Tetris::game_board_init()
+{
+	initgraph(640, 480);
+
+	HWND hwnd = GetHWnd();
+	SetWindowText(hwnd, "Tetris");												// Titre de jeu 
+
+	/* ouvrir la musique du background*/
+	mciSendString("open music\\change.mp3 alia mymusic", NULL, 0, NULL);
+	mciSendString("play music\\change.mp3 repeat", NULL, 0, NULL);
+
+
+	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
+	IMAGE img(640, 480);
+	loadimage(&img, "Pic\\1-110501012153.jpg");
+	SetWorkingImage(&img);
+	showScore();
+	showLevel();
+
+	/*region pour afficher le guide du jeur*/
+	settextstyle(35, 0, "Calibri");
+	setbkmode(TRANSPARENT);
+	outtextxy(50, 50, "GUIDE");
+	settextstyle(20, 0, "Calibri");
+	outtextxy(55, 135, "up-rotate");
+	outtextxy(55, 155, "left-move left");
+	outtextxy(55, 175, "down-move down");
+	outtextxy(55, 195, "right-move right");
+	outtextxy(55, 215, "space-to the bottom");
+	outtextxy(55, 235, "ESC-quit");
+	settextstyle(22, 0, "Calibri");
+	outtextxy(60, 300, "P-Pause the game");
+
+
+
+	/*définir la région pour jouer*/
+	rectangle((WIDTH + 1)*SIZE - 1, SIZE - 1, (2 * WIDTH + 1)*SIZE, (HEIGHT + 1)*SIZE);
+	rectangle(439, 19, 520, 100);
+	SetWorkingImage();
+	putimage(0, 0, &img);
+
+}
+///////////////AI/////////////////
+CMD  Tetris::GetAiCmd()
+{
+	while (1)
+	{
+		// le bloc va tomber chaque 0.5s si il y a aucune opération 
+		Sleep(100);
+		DWORD newtime = GetTickCount();
+		if (newtime - oldtime >= 600 - level * 100)
+		{
+			oldtime = newtime;
+			return CMD_DOWN;
+		}
+		if (_kbhit())								// check the command
+		{
+			switch (_getch())
+			{
+			case 'P':
+			case 'p':  return CMD_STOP;
+			case 27:   return CMD_QUIT;
+			}
+
+		}
+		else
+		{
+			int m = find_min();
+			if (g_CurBlock.x - m > 0)
+				return CMD_LEFT;
+			else if (g_CurBlock.x - m == 0)
+				return CMD_DOWN;
+			else return CMD_RIGHT;
+		}
+	}
+
+}
+void Tetris::cal_max_in_col()
+{
+	for (int i = 0; i < WIDTH; i++)
+	{
+		max_table[i] = -1;
+		for (int j = 0; j < HEIGHT; j++)
+		{
+			if (max_table[i] < AI_dec_area[i][j])
+				max_table[i] = AI_dec_area[i][j];
+
+		}
+	}
+}
+int Tetris::find_min()
+{
+	int min_x;
+	int min = 100;
+	for (int i = 0; i < WIDTH; i++)
+	{
+		if (min > max_table[i])
+		{
+			min = max_table[i];
+			min_x = i;
+		}
+	}
+	switch (g_CurBlock.id)
+	{
+	case 0:
+		switch (g_CurBlock.dir)
+		{
+		case 0: return min_x;
+		case 1: return min_x - 1;
+		case 2: return min_x;
+		case 3: return min_x - 1;
+		}
+	case 1: return min_x - 1;
+	case 2: return min_x - 1;
+		switch (g_CurBlock.dir)
+		{
+		case 0: return min_x - 1;
+		case 1: return min_x;
+		case 2: return min_x - 1;
+		case 3: return min_x - 1;
+		}
+	case 3:
+		switch (g_CurBlock.dir)
+		{
+		case 0: return min_x - 1;
+		case 1: return min_x;
+		case 2: return min_x - 1;
+		case 3: return min_x - 1;
+		}
+	case 4:
+		switch (g_CurBlock.dir)
+		{
+		case 0: return min_x;
+		case 1: return min_x - 1;
+		case 2: return min_x - 1;
+		case 3: return min_x - 1;
+		}
+	case 5: return min_x - 1;
+	case 6: return min_x;
+	default:
+		switch (g_CurBlock.dir)
+		{
+		case 0: return min_x;
+		case 1: return min_x;
+		case 2: return min_x;
+		case 3: return min_x - 1;
+		}
+	}
+
+}

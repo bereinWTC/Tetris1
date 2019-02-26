@@ -1,3 +1,5 @@
 ﻿  Tetris.cpp
-d:\semestre 2\tetris1\tetris.cpp(199): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(169): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(778): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(877): warning C4715: 'Tetris::find_min': not all control paths return a value
   Tetris.vcxproj -> D:\Semestre 2\Tetris1\Debug\Tetris.exe
