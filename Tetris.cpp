@@ -31,7 +31,6 @@ il y a 7 types des bloc
 */
 
  /*Le bloc courrant et le bloc prochain*/
- BlockInfo g_CurBlock, g_NextBlock;
 
  /*tableaux qui servent au IA pour faire la descision*/
  int AI_dec_area[WIDTH][HEIGHT] = { -1 };				//C'est un tableau qui stock les trous occupée par un bloc leur niveau et -1 pour la cache vide 
@@ -50,7 +49,29 @@ void Tetris::NewGame()
 {
 	reset_game_area();
 	/* obtenir le bloc prochain */
+	g_NextBlock.id = rand() % 7;
+	g_NextBlock.dir = rand() % 4;
+	g_NextBlock.x = 11;
+	g_NextBlock.y = 21;
 	NewBlock();
+}
+void Tetris::NewGamemulti(Tetris tetris2)
+{
+	reset_game_area();
+	tetris2.reset_game_area();
+	/* obtenir le bloc prochain */
+	g_NextBlock.id = rand() % 7;
+	g_NextBlock.dir = rand() % 4;
+	g_NextBlock.x = 11;
+	g_NextBlock.y = 21;
+
+	tetris2.g_NextBlock.id = rand() % 7;
+	tetris2.g_NextBlock.dir = rand() % 4;
+	tetris2.g_NextBlock.x = 11;
+	tetris2.g_NextBlock.y = 21;
+
+	NewBlock();
+	tetris2.NewBlock();
 }
 void Tetris::GameOver()
 {
@@ -72,11 +93,6 @@ void Tetris::GameOver()
 void Tetris::NewBlock()
 {
 
-	/* générer la configuaration de nouveau block*/
-	g_NextBlock.id = rand() % 7;
-	g_NextBlock.dir = rand() % 4;
-	g_NextBlock.x = 11;
-	g_NextBlock.y = 21;
 	/*passer la configuration de nouveau block au block current*/
 	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
 	g_CurBlock.dir = g_NextBlock.dir, g_NextBlock.dir = rand() % 4;
@@ -164,7 +180,7 @@ CMD  Tetris::GetCmd()
 	while (1)
 	{
 		// le bloc va tomber chaque 0.5s si il y a aucune opération 
-		Sleep(200);
+		//Sleep(200);
 		DWORD newtime = GetTickCount();
 		if (newtime - oldtime >= 600 - level * 50)
 		{
@@ -191,6 +207,39 @@ CMD  Tetris::GetCmd()
 			case 0xE0:								//speciale
 			switch (_getch())					//recevoir le commande prochain
 				{
+				}
+			}
+
+		}
+
+
+	}
+}
+
+CMD  Tetris::GetCmd2()
+{
+	while (1)
+	{
+		// le bloc va tomber chaque 0.5s si il y a aucune opération 
+		//Sleep(200);
+		DWORD newtime = GetTickCount();
+		if (newtime - oldtime >= 600 - level * 50)
+		{
+			oldtime = newtime;
+			return CMD_DOWN;
+		}
+		if (_kbhit())								// check the command
+		{
+			switch (_getch())
+			{
+			case 'P':
+			case 'p':  return CMD_STOP;
+			case 27:   return CMD_QUIT;
+			case ' ':  return CMD_SINK;
+			case 0:									//speciale
+			case 0xE0:								//speciale
+				switch (_getch())					//recevoir le commande prochain
+				{
 				case 72:	return CMD_ROTATE;      //up
 				case 75:	return CMD_LEFT;        //left
 				case 77:	return CMD_RIGHT;       //right
@@ -199,13 +248,12 @@ CMD  Tetris::GetCmd()
 			}
 
 		}
-		else {
-			return CMD_DOWN;
-		}
 
 
 	}
 }
+
+
 void Tetris::DispatchCmd(CMD _cmd)
 {
 	switch (_cmd)
@@ -280,7 +328,7 @@ void Tetris::OnSink()
 {
 	int i, x, y;
 	int count = 0;
-	// continuer à bouger au dessous 
+	// continuer ?bouger au dessous 
 	DrawBlock(g_CurBlock, HIDE);
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
@@ -289,7 +337,7 @@ void Tetris::OnSink()
 		--g_CurBlock.y;
 		--temp.y;
 	}
-	DrawBlock(g_CurBlock, FIX);									//continue à bouger au dessus si possible
+	DrawBlock(g_CurBlock, FIX);									//continue ?bouger au dessus si possible
 
 	// mettre le bloc sur la place finale 
 	WORD b = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
@@ -339,7 +387,7 @@ void Tetris::OnSink()
 	if (bRow)
 	{
 		Sleep(20);
-		// supprimer le ligne marqué 
+		// supprimer le ligne marqu?
 		IMAGE img;
 		for (i = 0; i < 4; i++)
 		{
@@ -364,10 +412,10 @@ void Tetris::OnSink()
 				putimage(220, SIZE + 20, &img);
 			}
 		}
-		// calculer le score et le niveaux de difficulté
+		// calculer le score et le niveaux de difficult?
 		score += count * 10;
 		showScore();
-		level = score / 100 + 1;					          //le niveau est incrémenté tanque tout les 100 points de score 
+		level = score / 100 + 1;					          //le niveau est incrément?tanque tout les 100 points de score 
 		showLevel();
 	}
 	NewBlock();												  // créer un nouveau bloc
@@ -468,9 +516,14 @@ void Tetris::DisplayPause()
 	while (_getch() != 'p'&&_getch() != 'P')
 		;
 }
+
+void Tetris::setmulti() {
+	ifmulti = 1;
+}
+
 Tetris::Tetris()
 {
-	score = 0; level = 1; position = 0;
+	score = 0; level = 1; position = 0;ifmulti = 0;
 }
 Tetris::Tetris(int xscore, int xlevel, int xposition)
 {
@@ -478,15 +531,10 @@ Tetris::Tetris(int xscore, int xlevel, int xposition)
 	level = xlevel;
 	position = xposition;
 }
+
+
 //////////////from main function//////////
-void  Tetris::start(Tetris tetris1, Tetris tetris2)
-{
-	WelcomeMenu();
-	int flag = get_choice();
-	goto_choice(flag, tetris1, tetris2);
-	_getch();
-	closegraph();
-}
+
 void  Tetris::WelcomeMenu()
 {
 	initgraph(640, 480);
@@ -530,25 +578,19 @@ int   Tetris::get_choice()
 	return flag;
 
 }
-void  Tetris::goto_choice(int flag, Tetris tetris1, Tetris tetris2)
+
+void  Tetris::play_game_multi(Tetris tetris2)
 {
-	if (flag == 1) play_game(tetris1, tetris2);
-	else if (flag == 2)  top_score();
-	else if (flag == 3) 	Quit();
-}
-void  Tetris::play_game(Tetris tetris1, Tetris tetris2)
-{
-	game_board_init(tetris1, tetris2);
+	game_board_init_multi(tetris2);
 	/* commencer le jeux*/
-	tetris1.NewGame();
-	tetris2.NewGame();
+	NewGamemulti(tetris2);
 	CMD  c, d;
 	while (1)
 	{
 
-		c = tetris1.GetCmd();											    //recevoir la commande
-		d = tetris2.GetCmd();
-		tetris1.DispatchCmd(c);												// exécuter le commande
+		c = GetCmd();											    //recevoir la commande
+		d = tetris2.GetCmd2();
+		DispatchCmd(c);												// exécuter le commande
 		tetris2.DispatchCmd(d);
 		/* ouvrir un fenêtre pour assurer quitter*/
 		if (c == CMD_QUIT)
@@ -585,7 +627,7 @@ void  Tetris::top_score()
 		}if (flag != 0) break;
 	}
 }
-void  Tetris::game_board_init(Tetris tetris1, Tetris tetris2)
+void  Tetris::game_board_init_multi(Tetris tetris2)
 {
 	initgraph(960, 480);
 
@@ -601,8 +643,8 @@ void  Tetris::game_board_init(Tetris tetris1, Tetris tetris2)
 	IMAGE img(960, 480);
 	loadimage(&img, "Pic\\1-110501012153.jpg");
 	SetWorkingImage(&img);
-	tetris1.showScore();
-	tetris1.showLevel();
+	showScore();
+	showLevel();
 
 	/*region pour afficher le guide du jeur*/
 	settextstyle(35, 0, "Calibri");
@@ -628,6 +670,7 @@ void  Tetris::game_board_init(Tetris tetris1, Tetris tetris2)
 	putimage(0, 0, &img);
 
 }
+
 int	  Tetris::readfile(Score_list &S)
 {
 	int x = 78, y = 70, z = 455, i = 1;
@@ -681,8 +724,9 @@ void Tetris::goto_choice(int flag)
 	if (flag == 1 || flag == 2) play_game();
 	else if (flag == 3)
 	{
-		Tetris tetris1(0, 1, 0), tetris2(0, 1, 480);
-		play_game(tetris1, tetris2);
+		Tetris tetris2(0,1,480);
+		setmulti();
+		play_game_multi(tetris2);
 	}
 }
 void Tetris::play_game()
@@ -772,7 +816,7 @@ CMD  Tetris::GetAiCmd()
 {
 	while (1)
 	{
-		// le bloc va tomber chaque 0.5s si il y a aucune opération 
+		// le bloc va tomber chaque 0.5s si il y a aucune operation 
 		Sleep(100);
 		DWORD newtime = GetTickCount();
 		if (newtime - oldtime >= 600 - level * 100)
