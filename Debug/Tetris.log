@@ -1,7 +1,5 @@
 ﻿  Tetris.cpp
-d:\semestre 2\tetris1\tetris.cpp(185): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(210): warning C4060: switch statement contains no 'case' or 'default' labels
-d:\semestre 2\tetris1\tetris.cpp(226): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(822): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(921): warning C4715: 'Tetris::find_min': not all control paths return a value
+d:\semestre 2\tetris1\tetris.cpp(223): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(270): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(901): warning C4018: '>=': signed/unsigned mismatch
   Tetris.vcxproj -> D:\Semestre 2\Tetris1\Debug\Tetris.exe

@@ -205,7 +205,7 @@ bool Tetris::CheckBlock(BlockInfo _block)
 			y = _block.y - i / 4;
 			if ((x < 0) || (x >= WIDTH) || (y < 0))						//trop gauche ou trop droite
 				return false;
-			if ((y < HEIGHT) && (game_area[x][y]))					//trop haut
+			if ((y < HEIGHT) && (game_area[x][y]))						//trop haut
 				return false;
 
 		}
@@ -218,7 +218,7 @@ CMD  Tetris::GetCmd()
 	while (1)
 	{
 		// le bloc va tomber chaque 0.5s si il y a aucune opération 
-		//Sleep(200);
+		Sleep(20);
 		DWORD newtime = GetTickCount();
 		if (newtime - oldtime >= 600 - level * 50)
 		{
@@ -247,6 +247,10 @@ CMD  Tetris::GetCmd()
 			case 0xE0:								//speciale
 			switch (_getch())					//recevoir le commande prochain
 				{
+					case 72:	return CMD_ROTATE;      //up
+					case 75:	return CMD_LEFT;        //left
+					case 77:	return CMD_RIGHT;       //right
+					case 80:	return CMD_DOWN;        //down
 				}
 			}
 
@@ -317,13 +321,13 @@ void Tetris::OnRotate()
 	int distance;
 	BlockInfo temp = g_CurBlock;
 	temp.dir++;					 if (CheckBlock(temp)) { distance = 0; goto rotate; }		// rotation sans bouger
-	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }		// bouger ?gauche pour un unit?et après tourner 
-	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }		// bouger ?droite pour un unit?et après tourner
-	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }		// bouger ?gauche pour 2 unités et après tourner
-	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }		// bouger ?droite pour 2 unités et après tourner
+	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }		// bouger à gauche pour un unit?et après tourner 
+	temp.x = g_CurBlock.x + 1;   if (CheckBlock(temp)) { distance = 1; goto rotate; }		// bouger à droite pour un unit?et après tourner
+	temp.x = g_CurBlock.x - 2;   if (CheckBlock(temp)) { distance = -2; goto rotate; }		// bouger à gauche pour 2 unités et après tourner
+	temp.x = g_CurBlock.x + 2;   if (CheckBlock(temp)) { distance = 2; goto rotate; }		// bouger à droite pour 2 unités et après tourner
 	return;
 
-	//rotation:tuer le bloc ?l'instant et créer un nouveau bloc(qui est 'tourn?) 
+	//rotation:tuer le bloc à l'instant et créer un nouveau bloc(qui est tourné) 
 rotate:
 	DrawBlock(g_CurBlock, HIDE);
 	++g_CurBlock.dir;
@@ -372,7 +376,7 @@ void Tetris::OnSink()
 {
 	int i, x, y;
 	int count = 0;
-	// continuer ?bouger au dessous 
+	// continuer à bouger au dessous 
 	DrawBlock(g_CurBlock, HIDE);
 	BlockInfo temp = g_CurBlock;
 	--temp.y;
@@ -381,7 +385,7 @@ void Tetris::OnSink()
 		--g_CurBlock.y;
 		--temp.y;
 	}
-	DrawBlock(g_CurBlock, FIX);									//continue ?bouger au dessus si possible
+	DrawBlock(g_CurBlock, FIX);									//continue à bouger au dessus si possible
 
 	// mettre le bloc sur la place finale 
 	WORD b = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
@@ -431,7 +435,7 @@ void Tetris::OnSink()
 	if (bRow)
 	{
 		Sleep(20);
-		// supprimer le ligne marqu?
+		// supprimer le ligne marqué
 		IMAGE img;
 		for (i = 0; i < 4; i++)
 		{
@@ -448,14 +452,16 @@ void Tetris::OnSink()
 						if (flag == 2)
 						{
 							AI_dec_area[x][y - 1] = AI_dec_area[x][y] - 1;
-							game_area[x][y] = -1;
+							AI_dec_area[x][y] = -1;
 							cal_max_in_col();
+							
 						}
 					}
 				getimage(&img, 220, 20, WIDTH * SIZE, (HEIGHT - (g_CurBlock.y - i + 1)) * SIZE);
 				putimage(220, SIZE + 20, &img);
 			}
 		}
+		
 		// calculer le score et le niveaux de difficult?
 		score += count * 10;
 		showScore();
@@ -568,6 +574,15 @@ void Tetris::setmulti() {
 Tetris::Tetris()
 {
 	score = 0; level = 1; position = 0;ifmulti = 0;
+	g_CurBlock.x = 0;
+	g_CurBlock.y = 0;
+	g_CurBlock.id = 0;
+	g_CurBlock.dir = 0;
+	g_NextBlock.x=0;
+	g_NextBlock.y= 0;
+	g_NextBlock.id = 0;
+	g_NextBlock.dir = 0;
+
 }
 Tetris::Tetris(int xscore, int xlevel, int xposition)
 {
@@ -694,7 +709,7 @@ void  Tetris::game_board_init_multi()
 
 	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
 	IMAGE img(960, 480);
-	loadimage(&img, "Pic\\1-110501012153.jpg");
+	loadimage(&img, "Pic\\background.png");
 	SetWorkingImage(&img);
 	showScore();
 	showLevel();
@@ -839,7 +854,7 @@ void Tetris::game_board_init()
 
 	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
 	IMAGE img(640, 480);
-	loadimage(&img, "Pic\\1-110501012153.jpg");
+	loadimage(&img, "Pic\\background.png");
 	SetWorkingImage(&img);
 	showScore();
 	showLevel();
@@ -953,6 +968,7 @@ int Tetris::find_min()
 		case 1: return min_x;
 		case 2: return min_x - 1;
 		case 3: return min_x - 1;
+		default:return min_x;
 		}
 	case 3:
 		switch (g_CurBlock.dir)
@@ -961,6 +977,7 @@ int Tetris::find_min()
 		case 1: return min_x;
 		case 2: return min_x - 1;
 		case 3: return min_x - 1;
+		default:return min_x;
 		}
 	case 4:
 		switch (g_CurBlock.dir)
@@ -969,6 +986,7 @@ int Tetris::find_min()
 		case 1: return min_x - 1;
 		case 2: return min_x - 1;
 		case 3: return min_x - 1;
+		default:return min_x;
 		}
 	case 5: return min_x - 1;
 	case 6: return min_x;
@@ -979,6 +997,7 @@ int Tetris::find_min()
 		case 1: return min_x;
 		case 2: return min_x;
 		case 3: return min_x - 1;
+		default:return min_x;
 		}
 	}
 
