@@ -1,4 +1,7 @@
 #pragma once
+/*
+
+*/
 struct Score_list
 {
 	char name[20];
