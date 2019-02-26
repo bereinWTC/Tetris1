@@ -784,7 +784,7 @@ void Tetris::game_board_init()
 	srand((unsigned)time(NULL));												// pour fabriquer un chiffre random 
 	IMAGE img(640, 480);
 	loadimage(&img, "Pic\\1-110501012153.jpg");
-	SetWorkingImage(&img);
+	SetWorkingImage(&img);														//mettre l'image au fond du fenêtre
 	showScore();
 	showLevel();
 
