@@ -75,25 +75,6 @@ void Tetris::NewGame()
 }
 
 
-void Tetris::NewGamemulti(Tetris tetris2)
-{
-	reset_game_area();
-	reset_game_area2(tetris2);
-	tetris2.reset_game_area();
-	/* obtenir le bloc prochain */
-	g_NextBlock.id = rand() % 7;
-	g_NextBlock.dir = rand() % 4;
-	g_NextBlock.x = 11;
-	g_NextBlock.y = 21;
-
-	tetris2.g_NextBlock.id = rand() % 7;
-	tetris2.g_NextBlock.dir = rand() % 4;
-	tetris2.g_NextBlock.x = 11;
-	tetris2.g_NextBlock.y = 21;
-
-	NewBlock();
-	tetris2.NewBlock();
-}
 
 void Tetris::GameOver()
 {

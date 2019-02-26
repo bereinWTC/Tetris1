@@ -1,0 +1,11 @@
+On a écrivé des fonctions suivants pour réaliser le multi-joueurs:
+
+GetCmd2() pour obtenir les commandes d'un autre joueur, game_board_init_multi() pour créer un interface pour deux joueurs et void play_game_multi pour faire les actions des deux joueurs.
+
+La fonction GetCmd2 a faire la plupart des actions de joueur 2 d'être activé par les clés différents que celles de joueur 1, mais les commande PAUSE et QUIT sont de même. C'est pour que quand un joueur quitte/pause ,l'autre joueurs quitte/pause aussi.
+
+La fonction game_board_init_multi a créé une interface plus grande que celle pour un seul joueur, et elle aussi crée un rectangle pour chaque joueur.
+
+La fonction play_game_multi a créé deux variables de la classe Tetris, tetrisa et tetrisb, et les faire en même temps commencer à jouer. Elle va recevoir les commandes des deux joueurs et les distribuer sur la graphe. En effet, les actions de ces deux joueurs ont fait un par un mais pas parcellisé. 
+
+On a un idée pour les parallélisé mieux mais on n'a pas de temps pour les finir. On peut séparer la classe Tetris en deux classe différents: un pour envoyer les commande des joueurs et un pour dessiner les graphes. Si on l'a fait, on peut utilisé un thread pour chaque joueurs et on dessine les graphes après avoir collecter les opérations des tous les joueurs.

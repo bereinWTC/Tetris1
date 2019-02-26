@@ -19,7 +19,6 @@ class Tetris
 {
 public :
 	void NewGame();											// commencer un NewGame
-	void NewGamemulti(Tetris tetris2);
 	void GameOver();										// Gameover
 	CMD  GetCmd();											// obtenir les commandes de clavier
 	CMD  GetCmd2();											// obtenir les commandes de clavier
@@ -40,7 +39,7 @@ public :
 	void showLevel();                                       // afficher le niveau du jeu
 	void DisplayPause();                                    // Pause
 	void reset_game_area();									// clear game area and put it in black
-	void reset_game_area2(Tetris tetris2);									// clear game area and put it in black
+	void reset_game_area2(Tetris tetris2);									// pas utile
 	int	  readfile(Score_list &S);
 	void  Quit();
 	Tetris();
