@@ -8,6 +8,6 @@ qui se trouve dans la clas Bloc.De plus, elle donne l'info pour les coordonnée d
 struct BlockInfo
 {
 	byte id;											// ID
-	char x, y;											// coordonnee
+	int x, y;											// coordonnee
 	byte dir : 2;										// 4 directions(cod?en 2 bits)
 };

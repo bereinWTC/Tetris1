@@ -1,5 +1,5 @@
 ﻿  Tetris.cpp
-d:\semestre 2\tetris1\tetris.cpp(227): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(263): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(876): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(175): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(210): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(808): warning C4018: '>=': signed/unsigned mismatch
   Tetris.vcxproj -> D:\Semestre 2\Tetris1\Debug\Tetris.exe

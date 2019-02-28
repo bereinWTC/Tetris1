@@ -8,19 +8,15 @@
 #include <process.h>
 
 
-using namespace std;
-
-
 #pragma comment(lib,"Winmm.lib")						// utilisation de Winmm.lib
 
 
- unsigned int WINAPI ThreadProFunc(void *pParam)
+unsigned int WINAPI ThreadProFunc(void *pParam)
  {
 //action pour autre joueurs
 	 return 0;
- }
- 					
- void Tetris::reset_AI_dec_area()
+ }					
+void Tetris::init_AI_dec_area()
  {
 
 	 for (int i = 0; i < WIDTH; i++)
@@ -29,7 +25,7 @@ using namespace std;
 			 AI_dec_area[i][j] = -1;
 		 }
 }
- void Tetris::reset_max_table()
+void Tetris::init_max_table()
  {
 	 for (int i = 0; i < WIDTH; i++)
 	 {
@@ -44,29 +40,17 @@ void Tetris::reset_game_area()
 	ZeroMemory(game_area, WIDTH*HEIGHT);
 	if (flag == 2)
 	{
-		reset_max_table();
-		reset_AI_dec_area();
+		init_max_table();
+		init_AI_dec_area();
 	}
 
 	
 }
-
-void Tetris::reset_game_area2(Tetris tetris2)
-{
-
-	setfillcolor(BLACK);
-	bar(tetris2.position + (WIDTH + 1)*SIZE, SIZE, tetris2.position + (2 * WIDTH + 1)*SIZE - 1, (HEIGHT + 1)*SIZE - 1);
-	ZeroMemory(game_area, WIDTH*HEIGHT);
-} 
-
 void Tetris::NewGame()
 {
 	reset_game_area();
 	NewBlock();
 }
-
-
-
 void Tetris::GameOver()
 {
 	HWND wnd = GetHWnd();
@@ -119,8 +103,8 @@ void Tetris::NewBlock()
 
 	/* les blocs tombent automatiquement */
 	oldtime = GetTickCount();
-
 }
+
 void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 {
 	WORD b = g_blocks[_block.id].dir[_block.dir];
@@ -134,7 +118,7 @@ void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 		case FIX: color = g_blocks[_block.id].color / 3; break;			// donne couleur du tetromino/3 quand il est fix dans la région du jeu 
 	}
 	setfillcolor(color);                                                // met le couleur du tetromino
-	 /*scanner une région de £´*£´ et dessiner le bloc */
+	 //scanner une région de £´*£´ et dessiner le bloc 
 	for (int i = 0; i < 16; i++)                                       
 	{
 		if (b & 0x8000)
@@ -156,42 +140,6 @@ void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 	}
 }
 
-void Tetris::DrawBlock2(BlockInfo _block, DRAW _draw,int position)
-{
-	WORD b = g_blocks[_block.id].dir[_block.dir];
-	int x, y;
-
-	int color = BLACK;
-	switch (_draw)
-	{
-	case SHOW: color = g_blocks[_block.id].color; break;
-	case HIDE: color = BLACK;	break;
-	case FIX: color = g_blocks[_block.id].color / 3; break;      
-	}
-	setfillcolor(color);
-
-	for (int i = 0; i < 16; i++)                                     
-	{
-		/* pour assurer que le bloc est situé au gauche et en haut de ce region et après on peut le bien mettre */
-		if (b & 0x8000)
-		{
-			x = _block.x + i % 4;
-			y = _block.y - i / 4;
-			if (y < HEIGHT)
-			{
-				if (_draw != HIDE)
-				{
-					bar3d(x*SIZE + 2 + 220, (HEIGHT - y - 1)*SIZE + 2 + 20, (x + 1)*SIZE - 4 + 220, (HEIGHT - y)*SIZE - 4 + 20, 3, true);
-				}
-				else
-					bar(x*SIZE + 220, (HEIGHT - y - 1)*SIZE + 20, (x + 1)*SIZE - 1 + 220, (HEIGHT - y)*SIZE - 1 + 20);
-
-			}
-		}
-		b <<= 1;
-	}
-
-}
 bool Tetris::CheckBlock(BlockInfo _block)
 {
 	WORD b = g_blocks[_block.id].dir[_block.dir];
@@ -252,7 +200,6 @@ CMD  Tetris::GetCmd()
 
 	}
 }
-
 CMD  Tetris::GetCmd2()
 {
 	while (1)
@@ -291,8 +238,6 @@ CMD  Tetris::GetCmd2()
 
 	}
 }
-
-
 void Tetris::DispatchCmd(CMD _cmd)
 {
 	switch (_cmd)
@@ -552,13 +497,7 @@ void Tetris::DisplayPause()
 {
 	while (_getch() != 'c'&&_getch() != 'C');
 }
-
-void Tetris::setmulti() {
-	ifmulti = 1;
-}
-
-
-void  Tetris::WelcomeMenu()
+void Tetris::WelcomeMenu()
 {
 	initgraph(640, 480);
 	IMAGE img(640, 480);
@@ -567,7 +506,7 @@ void  Tetris::WelcomeMenu()
 	SetWorkingImage();
 	putimage(0, 0, &img);
 }
-int   Tetris::get_choice()
+int  Tetris::get_choice()
 {
 	MOUSEMSG m;
 	int flag = 0;
@@ -601,8 +540,7 @@ int   Tetris::get_choice()
 	return flag;
 
 }
-
-void  Tetris::play_game_multi()
+void Tetris::play_game_multi()
 {
 	Tetris tetrisa(0, 1, 0), tetrisb(0, 1, 480);
 	/* commencer le jeux*/
@@ -642,8 +580,7 @@ void  Tetris::play_game_multi()
 	closegraph();
 	start();
 }
-
-void  Tetris::top_score()
+void Tetris::top_score()
 {
 	initgraph(640, 480);
 	IMAGE img(640, 480);
@@ -668,7 +605,7 @@ void  Tetris::top_score()
 		}if (flag != 0) break;
 	}
 }
-void  Tetris::game_board_init_multi()
+void Tetris::game_board_init_multi()
 {
 	initgraph(960, 480);
 
@@ -712,8 +649,7 @@ void  Tetris::game_board_init_multi()
 	putimage(0, 0, &img);
 
 }
-
-int	  Tetris::readfile(Score_list &S)
+int	 Tetris::readfile(Score_list &S)
 {
 	int x = 78, y = 70, z = 455, i = 1;
 	char ch_grades[5], ch[1], dot = '.';
@@ -741,7 +677,7 @@ int	  Tetris::readfile(Score_list &S)
 	fclose(fp);
 	return 0;
 }
-void  Tetris::Quit()
+void Tetris::Quit()
 {
 	closegraph();
 	exit(0);
@@ -758,15 +694,13 @@ void Tetris::goto_choice(int flag)
 	if (flag == 1 || flag == 2) play_game();
 	else if (flag == 3)
 	{
-		//setmulti();
+		//ifmulti = 1;
 
 		game_board_init_multi();
 		play_game_multi();
 
 	}
 }
-
-
 void Tetris::play_game()
 {
 	game_board_init();
@@ -779,7 +713,6 @@ void Tetris::play_game()
 		{
 			c = GetCmd();											    //recevoir la commande
 			DispatchCmd(c);												// exécuter le commande
-			/* ouvrir un fenêtre pour assurer quitter*/
 			if (c == CMD_QUIT)
 			{
 				HWND wnd = GetHWnd();
@@ -845,7 +778,7 @@ void Tetris::game_board_init()
 	outtextxy(55, 215, "space-to the bottom");
 	outtextxy(55, 235, "ESC-quit");
 	settextstyle(22, 0, "Calibri");
-	outtextxy(60, 300, "P-Pause the game");
+	outtextxy(60, 300, "C-Pause the game");
 
 
 
@@ -856,7 +789,6 @@ void Tetris::game_board_init()
 	putimage(0, 0, &img);
 
 }
-
 void Tetris::Retour() {
 	HWND wnd = GetHWnd();
 	if (MessageBox(wnd, "Est-ce que vous voulez rentrer au debut?", "Bonjour!", MB_OKCANCEL | MB_ICONQUESTION) == IDOK)
@@ -927,7 +859,7 @@ void Tetris::cal_max_in_col()
 		}
 	}
 }
-int Tetris::find_min()
+int  Tetris::find_min()
 {
 	int min_x;
 	int min = 100;
@@ -992,8 +924,6 @@ int Tetris::find_min()
 	}
 
 }
-
-
 void Tetris::init_g_block()
 {
 	/*L'ensemble de blocs possible*/
@@ -1016,18 +946,20 @@ void Tetris::init_game_area()
 {
 	ZeroMemory(game_area, WIDTH*HEIGHT);
 }
-
 Tetris::Tetris()
 {
-	score = 0; level = 1; position = 0; ifmulti = 0;
+	score = 0; level = 1; ifmulti = 0; position = 0;
 	init_g_block();
 	init_game_area();
 	flag = 0;
 	oldtime= GetTickCount();
+	init_AI_dec_area();
+	init_max_table();
 
 }
 Tetris::Tetris(int xscore, int xlevel, int xposition)
 {
+
 	init_g_block();
 	init_game_area();
 	score = xscore;
@@ -1036,3 +968,4 @@ Tetris::Tetris(int xscore, int xlevel, int xposition)
 	flag = 0;
 	oldtime= GetTickCount();
 }
+
