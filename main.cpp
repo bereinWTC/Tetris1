@@ -3,13 +3,14 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>  
+#include <iostream>
+using namespace std;
 
 
-void main()
+int main(int args, char** argv)
 {	
 	Tetris tetris;
 	tetris.start();
-
-	
+	return 0;
 }
 

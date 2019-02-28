@@ -1,7 +1,10 @@
 #pragma once
+/*
+L'ensemble de caractéristique de la transparence de l'interface du bloc.
+*/
 enum DRAW
 {
-	SHOW,
-	HIDE,
-	FIX
+	SHOW,		//pour
+	HIDE,		//pour
+	FIX			//pour
 };
