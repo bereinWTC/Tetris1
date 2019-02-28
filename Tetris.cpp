@@ -6,34 +6,19 @@
 #include <thread>
 #include "windows.h"
 #include <process.h>
+
+
 using namespace std;
 
 
 #pragma comment(lib,"Winmm.lib")						// utilisation de Winmm.lib
 
 
-/*définir le score et le niveau de difficult?/*/
- BYTE game_area[WIDTH][HEIGHT] = { 0 };
- DWORD  oldtime;										// contrôle de temp pour charge opération 
- Score_list user;										// définir user pour stocker le score et nom de joueur
- int flag = 0;
- Tetris tetrisa(0, 1, 0), tetrisb(0, 1, 480);
  unsigned int WINAPI ThreadProFunc(void *pParam)
  {
 //action pour autre joueurs
 	 return 0;
  }
-
-
- /*
-il y a 7 types des bloc
-0x0f00 = [0000 1111 0000 0000]:	I horizontale
-0x4444=[0100 0100 0100 0100]: I verticale
-*/
-
- /*Le bloc courrant et le bloc prochain*/
-
- /*tableaux qui servent au IA pour faire la descision*/
  					
  void Tetris::reset_AI_dec_area()
  {
@@ -117,11 +102,11 @@ void Tetris::NewBlock()
 
 	WORD c = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
 
-	/**/
+	/*pour assurer que  le nouveau tetromino est exactement au niveau de l'ecran en haut*/
 	while ((c & 0X000F) == 0)
 	{
-		--g_CurBlock.y;					//
-		c >>= 4;						//
+		--g_CurBlock.y;					
+		c >>= 4;						
 	}
 
 	/* créer un bloc */
@@ -187,6 +172,7 @@ void Tetris::DrawBlock2(BlockInfo _block, DRAW _draw,int position)
 
 	for (int i = 0; i < 16; i++)                                     
 	{
+		/* pour assurer que le bloc est situé au gauche et en haut de ce region et après on peut le bien mettre */
 		if (b & 0x8000)
 		{
 			x = _block.x + i % 4;
@@ -253,7 +239,7 @@ CMD  Tetris::GetCmd()
 			case 'R':
 			case 'r':  return CMD_RETOUR;
 			case 27:   return CMD_QUIT;
-			case ' ':  return CMD_SINK;			//faire tombé le tetromino
+			case 13:  return CMD_SINK;			//faire tombé le tetromino
 			case 72:	return CMD_ROTATE;      //up
 			case 75:	return CMD_LEFT;        //left
 			case 77:	return CMD_RIGHT;       //right
@@ -283,16 +269,20 @@ CMD  Tetris::GetCmd2()
 		{
 			switch (_getch())
 			{
+			case 'W':
+			case 'w':  return CMD_ROTATE;
+			case 'A':
+			case 'a':  return CMD_LEFT;
+			case 'S':
+			case 's':  return CMD_DOWN;
+			case 'D':
+			case 'd':  return CMD_RIGHT;
 			case 'C':
 			case 'c':  return CMD_STOP;
 			case 'R':
 			case 'r':  return CMD_RETOUR;
 			case 27:   return CMD_QUIT;
 			case ' ':  return CMD_SINK;
-			case 72:	return CMD_ROTATE;      //up
-			case 75:	return CMD_LEFT;        //left
-			case 77:	return CMD_RIGHT;       //right
-			case 80:	return CMD_DOWN;        //down
 				
 			}
 
@@ -320,7 +310,7 @@ void Tetris::DispatchCmd(CMD _cmd)
 void Tetris::OnRotate()
 {
 
-	int distance;
+	int distance=0;
 	BlockInfo temp = g_CurBlock;
 	temp.dir++;					 if (CheckBlock(temp)) { distance = 0; goto rotate; }		// rotation sans bouger
 	temp.x = g_CurBlock.x - 1;   if (CheckBlock(temp)) { distance = -1; goto rotate; }		// bouger à gauche pour un unité et faire la rotation  
@@ -567,17 +557,7 @@ void Tetris::setmulti() {
 	ifmulti = 1;
 }
 
-Tetris::Tetris()
-{
-	score = 0; level = 1; position = 0;ifmulti = 0;
 
-}
-Tetris::Tetris(int xscore, int xlevel, int xposition)
-{
-	score = xscore;
-	level = xlevel;
-	position = xposition;
-}
 void  Tetris::WelcomeMenu()
 {
 	initgraph(640, 480);
@@ -624,13 +604,14 @@ int   Tetris::get_choice()
 
 void  Tetris::play_game_multi()
 {
+	Tetris tetrisa(0, 1, 0), tetrisb(0, 1, 480);
 	/* commencer le jeux*/
 	tetrisa.NewGame();
 	tetrisb.NewGame();
 	CMD  c,d;
 	while (1)
 	{
-		c = tetrisa.GetCmd();											    //recevoir la commande
+		c = tetrisa.GetCmd2();											    //recevoir la commande
 		tetrisa.DispatchCmd(c);												// exécuter le commande
 		/* ouvrir un fenêtre pour assurer quitter*/
 		if (c == CMD_QUIT)
@@ -643,7 +624,7 @@ void  Tetris::play_game_multi()
 		}
 		
 
-		d = tetrisb.GetCmd2();											    //recevoir la commande
+		d = tetrisb.GetCmd();											    //recevoir la commande
 		tetrisb.DispatchCmd(d);												// exécuter le commande
         /* ouvrir un fenêtre pour assurer quitter*/
 
@@ -784,6 +765,8 @@ void Tetris::goto_choice(int flag)
 
 	}
 }
+
+
 void Tetris::play_game()
 {
 	game_board_init();
@@ -886,9 +869,16 @@ CMD  Tetris::GetAiCmd()
 {
 	while (1)
 	{
+
 		// le bloc va tomber chaque 0.5s si il y a aucune operation 
 		Sleep(100);
 		DWORD newtime = GetTickCount();
+		if (newtime - oldtime >= 600 - level * 50)
+		{
+			oldtime = newtime;
+			
+			return CMD_DOWN;
+		}
 		if (_kbhit())								// check the command
 		{
 			switch (_getch())
@@ -906,16 +896,16 @@ CMD  Tetris::GetAiCmd()
 			if (g_CurBlock.x - m > 0)
 			{
 				--temp.x;
-				if (!CheckBlock(temp)) return CMD_ROTATE;
-				else return CMD_LEFT;
+				if (!CheckBlock(g_CurBlock)) OnRotate();
+				return CMD_LEFT;
 			}	
 			else if (g_CurBlock.x - m == 0)
 				return CMD_DOWN;
 			else
 			{
 				++temp.x;
-				if (!CheckBlock(temp)) return CMD_ROTATE;
-				else return CMD_RIGHT;
+				if (!CheckBlock(g_CurBlock)) OnRotate();
+				return CMD_RIGHT;
 			}
 				
 		}
@@ -1003,3 +993,46 @@ int Tetris::find_min()
 
 }
 
+
+void Tetris::init_g_block()
+{
+	/*L'ensemble de blocs possible*/
+
+	 /*
+	il y a 7 types des bloc
+	0x0f00 = [0000 1111 0000 0000]:	I horizontale
+	0x4444=[0100 0100 0100 0100]: I verticale
+	*/
+	g_blocks[0] = { 0x0F00, 0x4444, 0x0F00, 0x4444, RED };				    // I
+	g_blocks[1] = { 0x0660, 0x0660, 0x0660, 0x0660, BLUE };					// O
+	g_blocks[2] = { 0x4460, 0x02E0, 0x0622, 0x0740, MAGENTA };			    // L
+	g_blocks[3] = { 0x2260, 0x0E20, 0x0644, 0x0470, YELLOW };				// L oppose
+	g_blocks[4] = { 0x0C60, 0x2640, 0x0C60, 0x2640, CYAN };					// Z
+	g_blocks[5] = { 0x0360, 0x4620, 0x0360, 0x4620, GREEN };				// Z oppose
+	g_blocks[6] = { 0x4E00, 0x4C40, 0x0E40, 0x4640, BROWN };			    // T
+   
+}
+void Tetris::init_game_area()
+{
+	ZeroMemory(game_area, WIDTH*HEIGHT);
+}
+
+Tetris::Tetris()
+{
+	score = 0; level = 1; position = 0; ifmulti = 0;
+	init_g_block();
+	init_game_area();
+	flag = 0;
+	oldtime= GetTickCount();
+
+}
+Tetris::Tetris(int xscore, int xlevel, int xposition)
+{
+	init_g_block();
+	init_game_area();
+	score = xscore;
+	level = xlevel;
+	position = xposition;
+	flag = 0;
+	oldtime= GetTickCount();
+}

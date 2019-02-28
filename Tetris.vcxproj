@@ -122,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tetris.cpp" />
+    <ClCompile Include="Tetris_AI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Block.h" />
@@ -130,6 +131,7 @@
     <ClInclude Include="DRAW.h" />
     <ClInclude Include="Score_list.h" />
     <ClInclude Include="Tetris.h" />
+    <ClInclude Include="Tetris_AI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
