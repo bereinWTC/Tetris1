@@ -8,3 +8,5 @@ enum DRAW
 	HIDE,		//pour dessiner le tetromino en noire
 	FIX			//pour dessiner le tetromino une fois arrêté
 };
+
+

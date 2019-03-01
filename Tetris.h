@@ -13,12 +13,12 @@
 #define	SIZE	20										
 
 /*
-C'est une classe qui cotient des atributs et méthodes pour faire marcher le jeu de tetris.
+C'est une classe qui contient des atributs et méthodes pour faire marcher le jeu de tetris.
 */
 class Tetris
 {
-public :
-	//////générale////////
+public:
+	//////GÉNÉRALE////////
 	Tetris();
 	void NewGame();											// commencer un NewGame
 	void GameOver();										// Gameover
@@ -41,9 +41,10 @@ public :
 	int	 readfile(Score_list &S);							// afficher score_list 
 	void Quit();											// quitter le jeu 
 	void DisplayPause();                                    // Pause
-	
 
-	////monojueur/////////
+
+	///////////MONO JOUEUR/////////
+	
 	void start();											// afficher la page d'acceuil
 	void play_game();										// Comencer ?jouer
 	void goto_choice(int flag);								// prendre l'action selon le chois de joueur
@@ -54,22 +55,26 @@ public :
 	void init_g_block();									// initialiser g_block
 	void init_game_area();									// initialiser gmae_area
 	
-	//////////////MULTI JUEUR///////
+	//////////MULTI JOUEUR////////
+	
 	Tetris(int xscore, int xlevel, int xposition);
 	CMD  GetCmd2();											// obtenir les commandes de clavier
 	void play_game_multi();								    // jouer en mode multijueur 
 	void game_board_init_multi();							// initialisaer le tableau pour multijueur
+	
 	/////AI///////
+	
 	CMD  GetAiCmd();										// obtenire la commande de IA
 	void cal_max_in_col();									// calculer la valeur maximum de chaque colonne de AI_dec_area et les mettre dans max_table
 	int  find_min();										// Trouver index de valeur minimum de max_table
 	void init_AI_dec_area();								// réinitialiser le tableau AI_dec_area
-	void init_max_table();								    // initialiser max_table 
+	void init_max_table();								    // initialiser max_table
+	
 private:
 	int position;											// position de game_board
 	int  AI_dec_area[WIDTH][HEIGHT];			            // C'est un tableau qui stock les trous occupée par un bloc leur niveau et -1 pour la trou vide 
 	int  max_table[WIDTH];									// Tableau qui stoke la valeur maximum de chque colonne de AI_dec_area
-	
+
 	int score;												// le score du jeux 
 	int level;												// le niveau du jeux
 	int ifmulti;											// ifmulti = 1 quand il y a un autre joueur, sinon ifmulti = 0
@@ -79,8 +84,29 @@ private:
 	DWORD  oldtime;											// contrôle de temp pour charge opération 
 	Score_list user;										// définir user pour stocker le score et nom de joueur
 	int flag;
-	
-	
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

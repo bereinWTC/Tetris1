@@ -70,40 +70,8 @@ void Tetris::GameOver()
 	}
 
 }
-void Tetris::NewBlock()
-{
-	/* obtenir le bloc prochain */
-	g_NextBlock.id = rand() % 7;
-	g_NextBlock.dir = rand() % 4;
-	g_NextBlock.x = 11;
-	g_NextBlock.y = 21;
 
-	/*passer la configuration de nouveau block au block current*/
-	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
-	g_CurBlock.dir = g_NextBlock.dir, g_NextBlock.dir = rand() % 4;
-	g_CurBlock.x = 3;
-	g_CurBlock.y = 24;
 
-	WORD c = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
-
-	/*pour assurer que  le nouveau tetromino est exactement au niveau de l'ecran en haut*/
-	while ((c & 0X000F) == 0)
-	{
-		--g_CurBlock.y;					
-		c >>= 4;						
-	}
-
-	/* créer un bloc */
-	DrawBlock(g_CurBlock,SHOW);
-
-	/* créer le bloc prochain */
-	setfillcolor(BLACK);
-	bar(440, 20, 519, 99);
-	DrawBlock(g_NextBlock, SHOW);
-
-	/* les blocs tombent automatiquement */
-	oldtime = GetTickCount();
-}
 
 void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 {
@@ -139,6 +107,41 @@ void Tetris::DrawBlock(BlockInfo _block, DRAW _draw)
 		b <<= 1;
 	}
 }
+void Tetris::NewBlock()
+{
+	/* obtenir le bloc prochain */
+	g_NextBlock.id = rand() % 7;
+	g_NextBlock.dir = rand() % 4;
+	g_NextBlock.x = 11;
+	g_NextBlock.y = 21;
+	/*passer la configuration de nouveau block au block current*/
+	g_CurBlock.id = g_NextBlock.id, g_NextBlock.id = rand() % 7;
+	g_CurBlock.dir = g_NextBlock.dir, g_NextBlock.dir = rand() % 4;
+	g_CurBlock.x = 3;
+	g_CurBlock.y = 24;
+
+	WORD c = g_blocks[g_CurBlock.id].dir[g_CurBlock.dir];
+
+	/*pour assurer que  le nouveau tetromino est exactement au niveau de l'ecran en haut*/
+	while ((c & 0X000F) == 0)
+	{
+		--g_CurBlock.y;					
+		c >>= 4;						
+	}
+
+	/* créer un bloc */
+	DrawBlock(g_CurBlock,SHOW);
+
+	/* créer le bloc prochain */
+	setfillcolor(BLACK);
+	bar(440, 20, 519, 99);
+	DrawBlock(g_NextBlock, SHOW);
+
+	/* les blocs tombent automatiquement */
+	oldtime = GetTickCount();
+}
+
+
 
 bool Tetris::CheckBlock(BlockInfo _block)
 {
@@ -161,46 +164,6 @@ bool Tetris::CheckBlock(BlockInfo _block)
 	return true;
 }
 CMD  Tetris::GetCmd()
-{
-	while (1)
-	{
-		// le bloc va tomber chaque 0.5s si il y a aucune opération 
-		Sleep(20);
-		DWORD newtime = GetTickCount();
-		/*
-		faire tombé automatiquement un tetromino pour un intervale de temps 
-		qui dépend du niveau du jeu. Plus le nuiveau est grand, plus vide
-		le tetromino tombe.
-		*/
-		if (newtime - oldtime >= 600 - level * 50)
-		{
-			oldtime = newtime;
-			return CMD_DOWN;
-		}
-		if (_kbhit())								// check the command
-		{
-			switch (_getch())
-			{
-
-			case 'C':
-			case 'c':  return CMD_STOP;			//pause le jeu 
-			case 'R':
-			case 'r':  return CMD_RETOUR;
-			case 27:   return CMD_QUIT;
-			case 13:  return CMD_SINK;			//faire tombé le tetromino
-			case 72:	return CMD_ROTATE;      //up
-			case 75:	return CMD_LEFT;        //left
-			case 77:	return CMD_RIGHT;       //right
-			case 80:	return CMD_DOWN;        //down
-			
-			}
-
-		}
-
-
-	}
-}
-CMD  Tetris::GetCmd2()
 {
 	while (1)
 	{
@@ -230,13 +193,54 @@ CMD  Tetris::GetCmd2()
 			case 'r':  return CMD_RETOUR;
 			case 27:   return CMD_QUIT;
 			case ' ':  return CMD_SINK;
-				
+			case 0:									//speciale
+			case 0xE0:								//speciale
+				switch (_getch())					//recevoir le commande prochain
+				{
+				}
 			}
 
 		}
 
 
 	}
+}
+CMD  Tetris::GetCmd2()
+{
+	while (1)
+	{
+		// le bloc va tomber chaque 0.5s si il y a aucune opération 
+		//Sleep(200);
+		DWORD newtime = GetTickCount();
+		if (newtime - oldtime >= 600 - level * 50)
+		{
+			oldtime = newtime;
+			return CMD_DOWN;
+		}
+		if (_kbhit())								// check the command
+		{
+			switch (_getch())
+			{
+			case 'c':
+			case 'C':  return CMD_STOP;
+			case 'R':
+			case 'r':  return CMD_RETOUR;
+			case 27:   return CMD_QUIT;
+			case 13:  return CMD_SINK;
+			case 0:									//speciale
+			case 0xE0:								//speciale
+				switch (_getch())					//recevoir le commande prochain
+				{
+				case 72:	return CMD_ROTATE;      //up
+				case 75:	return CMD_LEFT;        //left
+				case 77:	return CMD_RIGHT;       //right
+				case 80:	return CMD_DOWN;        //down
+				}
+			}
+
+		}
+	}
+	
 }
 void Tetris::DispatchCmd(CMD _cmd)
 {
@@ -542,8 +546,9 @@ int  Tetris::get_choice()
 }
 void Tetris::play_game_multi()
 {
-	Tetris tetrisa(0, 1, 0), tetrisb(0, 1, 480);
+	
 	/* commencer le jeux*/
+	Tetris tetrisa(0, 1, 0), tetrisb(0, 1, 480);
 	tetrisa.NewGame();
 	tetrisb.NewGame();
 	CMD  c,d;
@@ -633,7 +638,7 @@ void Tetris::game_board_init_multi()
 	outtextxy(55, 155, "A-move left");
 	outtextxy(55, 175, "S-move down");
 	outtextxy(55, 195, "D-move right");
-	outtextxy(55, 215, "space-to the bottom");
+	outtextxy(55, 215, "enter-to the bottom");
 	outtextxy(55, 235, "ESC-quit");
 	settextstyle(22, 0, "Calibri");
 	outtextxy(60, 300, "C-Pause the game");
@@ -711,7 +716,7 @@ void Tetris::play_game()
 	{
 		while (1)
 		{
-			c = GetCmd();											    //recevoir la commande
+			c = GetCmd2();											    //recevoir la commande
 			DispatchCmd(c);												// exécuter le commande
 			if (c == CMD_QUIT)
 			{
@@ -775,7 +780,7 @@ void Tetris::game_board_init()
 	outtextxy(55, 155, "left-move left");
 	outtextxy(55, 175, "down-move down");
 	outtextxy(55, 195, "right-move right");
-	outtextxy(55, 215, "space-to the bottom");
+	outtextxy(55, 215, "enter-to the bottom");
 	outtextxy(55, 235, "ESC-quit");
 	settextstyle(22, 0, "Calibri");
 	outtextxy(60, 300, "C-Pause the game");

@@ -1,5 +1,6 @@
 ﻿  Tetris.cpp
-d:\semestre 2\tetris1\tetris.cpp(175): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(210): warning C4018: '>=': signed/unsigned mismatch
-d:\semestre 2\tetris1\tetris.cpp(808): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(173): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(200): warning C4060: switch statement contains no 'case' or 'default' labels
+d:\semestre 2\tetris1\tetris.cpp(215): warning C4018: '>=': signed/unsigned mismatch
+d:\semestre 2\tetris1\tetris.cpp(813): warning C4018: '>=': signed/unsigned mismatch
   Tetris.vcxproj -> D:\Semestre 2\Tetris1\Debug\Tetris.exe
